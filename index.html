@@ -1,1123 +1,446 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import {
-  CalendarDays,
-  Clock3,
-  Plus,
-  Trash2,
-  CarFront,
-  ChevronDown,
-  Send,
-  User,
-  ClipboardCheck,
-} from "lucide-react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Carnival Service Planning Form | Superb Executive Transportation</title>
+<style>
+:root{--bg:#000;--panel:#111;--line:#2a2a2a;--text:#fff;--muted:#b7b7b7;--gold:#d4af37;--success:#9ce7b6;--danger:#ffb0b0}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
+.page{max-width:1100px;margin:0 auto;padding:24px 16px 48px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:22px;padding:20px}.panel+.panel{margin-top:20px}
+h1,h2{margin:0}.muted{color:var(--muted)}.grid{display:grid;gap:16px}.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}
+label{display:block;margin:0 0 6px;font-size:14px;font-weight:700}input,select,textarea,button{font:inherit}
+input,select,textarea{width:100%;padding:12px;border-radius:14px;border:1px solid var(--line);background:#050505;color:#fff}
+textarea{min-height:84px;resize:vertical}button{cursor:pointer;border-radius:14px;padding:12px 16px;border:1px solid var(--line);background:#050505;color:#fff;font-weight:700}
+.gold{background:var(--gold);color:#000;border-color:rgba(212,175,55,.45)}.soft{background:rgba(212,175,55,.12);color:#f3e2a5;border-color:rgba(212,175,55,.35)}
+.status{margin-top:12px;padding:12px;border-radius:14px;border:1px solid var(--line);background:#050505;color:var(--muted);white-space:pre-wrap}
+.status.success{background:rgba(46,138,84,.16);border-color:rgba(100,200,130,.25);color:var(--success)}.status.error{background:rgba(180,32,32,.18);border-color:rgba(255,100,100,.25);color:var(--danger)}.status.warn{background:rgba(212,175,55,.12);border-color:rgba(212,175,55,.35);color:#f7de8b}
+.card{border:1px solid var(--line);background:#050505;border-radius:18px;padding:16px}.hidden{display:none!important}.summary{white-space:pre-wrap;font-size:12px;line-height:1.7;background:#000}
+.check{display:flex;gap:10px;align-items:flex-start}.check input{width:18px;height:18px;margin-top:2px}
+.event-box{border:1px solid var(--line);border-radius:18px;padding:14px;background:#070707}.event-box.active{border-color:rgba(212,175,55,.45);background:rgba(212,175,55,.1)}
+.top{display:flex;justify-content:space-between;gap:16px;align-items:flex-start}.small{font-size:12px}.caps{font-size:11px;text-transform:uppercase;letter-spacing:.18em;color:var(--gold);font-weight:700}
+@media(max-width:800px){.g2,.g3{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="page">
+  <section class="panel">
+    <div class="caps">Superb Executive Transportation</div>
+    <h1 style="margin-top:8px">Carnival Service Planning Form</h1>
+    <p class="muted">Use this form to establish the baseline schedule for the proposed service dates. Review it, acknowledge it, and return it once the core travel and event structure is in place.</p>
+    <div class="grid g3">
+      <div class="card"><div class="small muted">Service Dates</div><div style="margin-top:6px;font-weight:700">Apr 29 – May 4</div></div>
+      <div class="card"><div class="small muted">Package Rate</div><div style="margin-top:6px;font-weight:700">$3,500.00</div></div>
+      <div class="card"><div class="small muted">Return Process</div><div style="margin-top:6px;font-weight:700">Review → Acknowledge → Return</div></div>
+    </div>
+    <div style="margin-top:16px;display:flex;gap:12px;flex-wrap:wrap">
+      <div class="card small muted">Planning form only — not a locked final itinerary.</div>
+      <button id="toggle-proposal" type="button" class="soft">View Service Proposal</button>
+    </div>
+  </section>
 
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/meoazyoy";
-const DEFAULT_DATE = "2026-04-29";
-const DEFAULT_DEPARTURE_DATE = "2026-05-04";
-const PACKAGE_TOTAL = "3,500.00";
-const DEPOSIT_AMOUNT = "1,750.00";
-const BASE_PASSENGER_COUNT = 2;
-const VEHICLE_CAPACITY = 6;
+  <section id="proposal-panel" class="panel hidden">
+    <h2>Carnival Service Proposal</h2>
+    <p class="muted">Package terms for the proposed service dates.</p>
+    <p>Private driver service for <strong>April 29, 2026 through May 4, 2026</strong> is offered at a total package rate of <strong style="color:#d4af37">$3,500.00</strong> for the proposed service dates.</p>
+    <p class="muted">This package includes private transportation during the proposed service dates for Carnival-related activities, including daytime and evening events, local runs, dinner transportation, event drop-offs, pickups, and standby service based on the baseline schedule, requested time windows, and later client-confirmed adjustments during the service period.</p>
+    <div class="card">
+      <div class="caps">Package Breakdown</div>
+      <div style="margin-top:10px"><strong>Service date hold / private availability: $2,100</strong><div class="muted">That is $350 per day × 6 days</div></div>
+      <div style="margin-top:10px"><strong>On-call / standby availability premium: $750</strong><div class="muted">That is $125 per day × 6 days</div></div>
+      <div style="margin-top:10px"><strong>Carnival / late-hour / high-demand premium: $450</strong><div class="muted">That is $75 per day × 6 days</div></div>
+      <div style="margin-top:10px"><strong>Itinerary planning and service coordination: $200</strong></div>
+      <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(212,175,55,.18);font-weight:700;color:#d4af37">Total: $3,500</div>
+    </div>
+    <div class="card" style="margin-top:16px">
+      <div class="caps">Deposit Terms</div>
+      <p style="margin:10px 0 0">Once this planning form is completed and returned, a <strong>50% non-refundable deposit of $1,750.00</strong> is required to confirm and reserve the service dates. The remaining <strong>$1,750.00</strong> balance is due before service begins. Receipt of the deposit reserves the dates.</p>
+    </div>
+  </section>
 
-const TIME_OPTIONS = Array.from({ length: 48 }, (_, index) => {
-  const hour = Math.floor(index / 2);
-  const minute = index % 2 === 0 ? "00" : "30";
-  const period = hour >= 12 ? "PM" : "AM";
-  const displayHour = hour % 12 || 12;
+  <div class="grid g2" style="align-items:start">
+    <div class="grid">
+      <section class="panel">
+        <h2>Trip &amp; Contact Basics</h2>
+        <p class="muted">Start here with who the plan belongs to, then anchor the travel details.</p>
+        <div class="grid g2">
+          <div class="card">
+            <div class="caps">Contact</div>
+            <div style="margin-top:12px">
+              <label for="client-name">Name</label>
+              <input id="client-name" type="text" placeholder="Enter name" />
+            </div>
+            <div style="margin-top:12px">
+              <label for="phone">Phone</label>
+              <input id="phone" type="tel" placeholder="000-000-0000" inputmode="numeric" maxlength="12" />
+            </div>
+            <div style="margin-top:12px">
+              <label for="email">Email</label>
+              <input id="email" type="email" placeholder="name@example.com" />
+            </div>
+          </div>
 
-  return {
-    value: `${String(hour).padStart(2, "0")}:${minute}`,
-    label: `${displayHour}:${minute} ${period}`,
-  };
-});
+          <div class="card">
+            <div class="caps">Travel</div>
+            <div class="grid g2" style="margin-top:12px">
+              <div><label for="arrival-date">Arrival Date</label><input id="arrival-date" type="date" value="2026-04-29" /></div>
+              <div><label for="departure-date">Departure Date</label><input id="departure-date" type="date" value="2026-05-04" /></div>
+              <div><label for="arrival-flight">Arrival Flight Number</label><input id="arrival-flight" type="text" placeholder="AA1234" /></div>
+              <div><label for="arrival-time">Arrival Time</label><select id="arrival-time"></select></div>
+              <div><label for="departure-flight">Departure Flight Number</label><input id="departure-flight" type="text" placeholder="AA5678" /></div>
+              <div><label for="departure-time">Departure Time</label><select id="departure-time"></select></div>
+              <div><label for="passenger-count">Passenger Count</label><input id="passenger-count" type="number" min="1" max="6" value="2" /><div id="capacity-note" class="status small">Base plan starts at 2 passengers. The vehicle seats up to 6 total passengers.</div></div>
+              <div style="grid-column:1 / -1"><label for="arrival-destination">Arrival Destination</label>
+                <select id="arrival-destination">
+                  <option value="">Choose destination</option>
+                  <option value="Margaritaville Vacation Club">Margaritaville Vacation Club</option>
+                  <option value="The Ritz-Carlton, St. Thomas">The Ritz-Carlton, St. Thomas</option>
+                  <option value="Marriott Frenchman's Reef">Marriott Frenchman's Reef</option>
+                  <option value="Point Pleasant Resort">Point Pleasant Resort</option>
+                  <option value="Secret Harbour Beach Resort">Secret Harbour Beach Resort</option>
+                  <option value="Bolongo Bay Beach Resort">Bolongo Bay Beach Resort</option>
+                  <option value="Emerald Beach Resort">Emerald Beach Resort</option>
+                  <option value="Red Hook Ferry Terminal">Red Hook Ferry Terminal</option>
+                  <option value="Charlotte Amalie">Charlotte Amalie</option>
+                  <option value="Yacht Haven Grande">Yacht Haven Grande</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div id="arrival-destination-other-wrap" class="hidden" style="grid-column:1 / -1">
+                <label for="arrival-destination-other">Enter Destination</label>
+                <input id="arrival-destination-other" type="text" placeholder="Hotel, villa, marina, or address" />
+              </div>
+              <div style="grid-column:1 / -1"><label for="luggage-details">Luggage Details</label><textarea id="luggage-details" rows="2" placeholder="Example: 2 carry-ons, 2 checked bags"></textarea></div>
+            </div>
+          </div>
+        </div>
+      </section>
 
-const KNOWN_EVENT_OPTIONS = [
-  { id: "food-fair-04292026", event: "Food Fair", date: "2026-04-29", eventTime: "10:00" },
-  { id: "village-night-04292026", event: "Village Night", date: "2026-04-29", eventTime: "19:00" },
-  { id: "jouvert-04302026", event: "J’ouvert", date: "2026-04-30", eventTime: "05:30" },
-  { id: "village-night-04302026", event: "Village Night", date: "2026-04-30", eventTime: "19:00" },
-  { id: "childrens-parade-05012026", event: "Children’s Parade", date: "2026-05-01", eventTime: "10:00" },
-  { id: "village-night-05012026", event: "Village Night", date: "2026-05-01", eventTime: "19:00" },
-  { id: "adults-parade-05022026", event: "Adult’s Parade", date: "2026-05-02", eventTime: "10:00" },
-  { id: "village-night-05022026", event: "Village Night", date: "2026-05-02", eventTime: "19:00" },
-  { id: "fireworks-05022026", event: "Fireworks", date: "2026-05-02", eventTime: "21:00" },
+      <section class="panel">
+        <h2>Carnival Events</h2>
+        <p class="muted">Check the events you expect to attend so the baseline planning schedule shows what will likely be attended during the service period.</p>
+        <div id="event-check-list" class="grid g2"></div>
+        <div id="selected-known-events" style="margin-top:16px"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Additional Events</h2>
+        <p class="muted">Add dinners, private outings, or other events that are not listed above.</p>
+        <button id="add-event-btn" type="button" class="soft">Add Additional Event</button>
+        <div id="custom-warning" class="status warn hidden">Additional events only count when they include an event name, date, destination, and either an event time or requested time window.</div>
+        <div id="custom-events-container" class="status">No additional events added yet. Use the button above to add one.</div>
+      </section>
+    </div>
+
+    <aside class="panel">
+      <h2>Return Checklist</h2>
+      <p class="muted">Keep this panel in review mode until the planning details are correct.</p>
+
+      <button id="toggle-summary" type="button" class="soft">Open Review Summary</button>
+      <button id="copy-summary" type="button" style="margin-top:12px">Copy Schedule Summary</button>
+      <div id="copy-status" class="status hidden"></div>
+      <div id="summary-status" class="status">Open the summary first. Then review the proposal terms and acknowledgment before returning the planning form.</div>
+
+      <div id="proposal-ack-wrap" class="hidden">
+        <div class="card">
+          <div class="caps">Proposal Acknowledgment</div>
+          <p class="muted" style="margin:10px 0 0">Open the service proposal, review it, then acknowledge the deposit terms here before returning the planning form.</p>
+          <div id="proposal-open-warning" class="status warn">Open the service proposal first to enable acknowledgment.</div>
+          <label class="check" style="margin-top:12px">
+            <input id="deposit-ack" type="checkbox" disabled />
+            <span>I understand that a 50% non-refundable deposit of $1,750.00 is required to confirm and reserve these dates.</span>
+          </label>
+        </div>
+      </div>
+
+      <button id="submit-btn" type="button" class="gold hidden" style="margin-top:12px">Return Planning Form</button>
+      <button id="reset-btn" type="button" style="margin-top:12px">Reset Form</button>
+
+      <div id="submission-status" class="status hidden"></div>
+
+      <div class="card" style="margin-top:16px">
+        <div class="caps">Planning Progress</div>
+        <div id="progress-lines" style="margin-top:10px" class="muted"></div>
+      </div>
+
+      <div id="summary-wrap" class="hidden" style="margin-top:16px">
+        <div id="summary-box" class="status summary"></div>
+        <label class="check" style="margin-top:12px">
+          <input id="reviewed-summary" type="checkbox" />
+          <span>I reviewed the summary above and I am ready to move to the return step.</span>
+        </label>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+const FORM_ENDPOINT='https://formspree.io/f/meoazyoy';
+const VEHICLE_CAPACITY=6;
+const BASE_PASSENGER_COUNT=2;
+const TIME_OPTIONS=Array.from({length:48},(_,i)=>{const h=Math.floor(i/2),m=i%2===0?'00':'30',p=h>=12?'PM':'AM',dh=h%12||12;return{value:`${String(h).padStart(2,'0')}:${m}`,label:`${dh}:${m} ${p}`};});
+const KNOWN_EVENT_OPTIONS=[
+{id:'food-fair-04292026',event:'Food Fair',date:'2026-04-29',eventTime:'10:00'},
+{id:'village-night-04292026',event:'Village Night',date:'2026-04-29',eventTime:'19:00'},
+{id:'jouvert-04302026',event:'J’ouvert',date:'2026-04-30',eventTime:'05:30'},
+{id:'village-night-04302026',event:'Village Night',date:'2026-04-30',eventTime:'19:00'},
+{id:'childrens-parade-05012026',event:'Children’s Parade',date:'2026-05-01',eventTime:'10:00'},
+{id:'village-night-05012026',event:'Village Night',date:'2026-05-01',eventTime:'19:00'},
+{id:'adults-parade-05022026',event:'Adult’s Parade',date:'2026-05-02',eventTime:'10:00'},
+{id:'village-night-05022026',event:'Village Night',date:'2026-05-02',eventTime:'19:00'},
+{id:'fireworks-05022026',event:'Fireworks',date:'2026-05-02',eventTime:'21:00'}
 ];
+const state={selectedEvents:[],customEvents:[],showSummary:false,showProposal:false,hasViewedProposal:false,hasReviewedSummary:false,depositAcknowledged:false,isSubmitting:false};
+const el={
+toggleProposal:document.getElementById('toggle-proposal'),
+proposalPanel:document.getElementById('proposal-panel'),
+clientName:document.getElementById('client-name'),
+phone:document.getElementById('phone'),
+email:document.getElementById('email'),
+arrivalDate:document.getElementById('arrival-date'),
+departureDate:document.getElementById('departure-date'),
+arrivalFlight:document.getElementById('arrival-flight'),
+departureFlight:document.getElementById('departure-flight'),
+arrivalTime:document.getElementById('arrival-time'),
+departureTime:document.getElementById('departure-time'),
+passengerCount:document.getElementById('passenger-count'),
+capacityNote:document.getElementById('capacity-note'),
+arrivalDestination:document.getElementById('arrival-destination'),
+arrivalDestinationOtherWrap:document.getElementById('arrival-destination-other-wrap'),
+arrivalDestinationOther:document.getElementById('arrival-destination-other'),
+luggageDetails:document.getElementById('luggage-details'),
+eventCheckList:document.getElementById('event-check-list'),
+selectedKnownEvents:document.getElementById('selected-known-events'),
+addEventBtn:document.getElementById('add-event-btn'),
+customWarning:document.getElementById('custom-warning'),
+customEventsContainer:document.getElementById('custom-events-container'),
+toggleSummary:document.getElementById('toggle-summary'),
+copySummary:document.getElementById('copy-summary'),
+copyStatus:document.getElementById('copy-status'),
+summaryStatus:document.getElementById('summary-status'),
+proposalAckWrap:document.getElementById('proposal-ack-wrap'),
+proposalOpenWarning:document.getElementById('proposal-open-warning'),
+depositAck:document.getElementById('deposit-ack'),
+submitBtn:document.getElementById('submit-btn'),
+resetBtn:document.getElementById('reset-btn'),
+submissionStatus:document.getElementById('submission-status'),
+progressLines:document.getElementById('progress-lines'),
+summaryWrap:document.getElementById('summary-wrap'),
+summaryBox:document.getElementById('summary-box'),
+reviewedSummary:document.getElementById('reviewed-summary')
+};
 
-function SectionHeader({ icon: Icon, title, subtitle }) {
-  return (
-    <div className="mb-4 flex items-start gap-3">
-      <div className="mt-0.5 rounded-2xl border border-amber-400/40 bg-amber-400/10 p-2">
-        <Icon className="h-5 w-5" />
+function buildTimeOptions(selectEl, placeholder){
+  selectEl.innerHTML=[`<option value="">${placeholder}</option>`].concat(TIME_OPTIONS.map(t=>`<option value="${t.value}">${t.label}</option>`)).join('');
+}
+function formatPhoneNumber(v){const d=v.replace(/\D/g,'').slice(0,10);if(d.length<4)return d;if(d.length<7)return `${d.slice(0,3)}-${d.slice(3)}`;return `${d.slice(0,3)}-${d.slice(3,6)}-${d.slice(6)}`;}
+function isValidPhoneNumber(v){return /^\d{3}-\d{3}-\d{4}$/.test(v.trim());}
+function isValidEmail(v){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim());}
+function formatDateDisplay(v){if(!v)return'';const [y,m,d]=v.split('-');return y&&m&&d?`${m}/${d}/${y}`:v;}
+function formatTimeDisplay(v){if(!v)return'';const [h,m]=v.split(':');const n=Number(h);if(Number.isNaN(n))return v;return `${n%12||12}:${m} ${n>=12?'PM':'AM'}`;}
+function getResolvedArrivalDestination(){return el.arrivalDestination.value==='Other'?el.arrivalDestinationOther.value.trim():el.arrivalDestination.value.trim();}
+function hasAnyCustomRequestContent(r){return Boolean(r.event.trim()||r.date||r.eventTime||r.destination.trim()||r.requestedWindow.trim()||r.notes.trim());}
+function isCompleteCustomRequest(r){return Boolean(r.event.trim()&&r.date&&r.destination.trim()&&(r.eventTime||r.requestedWindow.trim()));}
+function escapeHtml(v){return String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function hideSubmissionStatus(){el.submissionStatus.className='status hidden';el.submissionStatus.textContent='';}
+function showSubmissionStatus(type,msg){el.submissionStatus.className=`status ${type}`;el.submissionStatus.textContent=msg;}
+function invalidateReview(){state.hasReviewedSummary=false;state.depositAcknowledged=false;el.reviewedSummary.checked=false;el.depositAck.checked=false;el.copyStatus.className='status hidden';el.copyStatus.textContent='';hideSubmissionStatus();render();}
+function getPassengerCapacityState(){const c=Number(el.passengerCount.value||0);if(!c)return{cls:'',msg:`Base plan starts at ${BASE_PASSENGER_COUNT} passengers. The vehicle seats up to ${VEHICLE_CAPACITY} total passengers.`};if(c>VEHICLE_CAPACITY)return{cls:'warn',msg:`More than ${VEHICLE_CAPACITY} passengers may require a second vehicle.`};if(c===VEHICLE_CAPACITY)return{cls:'error',msg:`You are at full vehicle capacity: ${VEHICLE_CAPACITY} passengers total.`};if(c>BASE_PASSENGER_COUNT)return{cls:'success',msg:`${c} passengers still fit in the same vehicle. Up to ${VEHICLE_CAPACITY} total are allowed.`};return{cls:'',msg:`Base plan is set for ${BASE_PASSENGER_COUNT} passengers. Additional guests may be added up to ${VEHICLE_CAPACITY} total.`};}
+function createCustomEvent(){return{id:`${Date.now()}-${Math.floor(Math.random()*100000)}`,event:'',date:'',eventTime:'',destination:'',requestedWindow:'',notes:''};}
+
+function buildSummaryText(){
+ const known=state.selectedEvents.map(e=>`${e.event} — ${formatDateDisplay(e.date)} — Event Time: ${formatTimeDisplay(e.eventTime)}${e.notes?` — Notes: ${e.notes}`:''}`);
+ const custom=state.customEvents.filter(hasAnyCustomRequestContent).map(r=>`${r.event||'Additional Event'}${r.date?` — ${formatDateDisplay(r.date)}`:''}${r.eventTime?` — Event Time: ${formatTimeDisplay(r.eventTime)}`:''}${r.destination?` — Destination: ${r.destination}`:''}${r.requestedWindow?` — Requested Time Window: ${r.requestedWindow}`:''}${r.notes?` — Notes: ${r.notes}`:''}`);
+ return [
+  'Carnival Service Planning Form','',
+  `Name: ${el.clientName.value.trim()}`,
+  `Phone: ${el.phone.value.trim()}`,
+  `Email: ${el.email.value.trim()}`,'',
+  `Arrival Date: ${formatDateDisplay(el.arrivalDate.value)||''}`,
+  `Arrival Flight Number: ${el.arrivalFlight.value.trim()}`,
+  `Arrival Time: ${formatTimeDisplay(el.arrivalTime.value)||''}`,
+  `Arrival Destination: ${getResolvedArrivalDestination()||''}`,
+  `Departure Date: ${formatDateDisplay(el.departureDate.value)||''}`,
+  `Departure Flight Number: ${el.departureFlight.value.trim()}`,
+  `Departure Time: ${formatTimeDisplay(el.departureTime.value)||''}`,
+  `Passengers: ${el.passengerCount.value||''}`,
+  `Luggage Details: ${el.luggageDetails.value.trim()}`,'',
+  'Known Carnival Events:',...(known.length?known:['None added yet.']),'',
+  'Additional Events:',...(custom.length?custom:['None added yet.'])
+ ].join('\n');
+}
+
+function renderEventChecks(){
+  const active=new Set(state.selectedEvents.map(e=>e.id));
+  el.eventCheckList.innerHTML=KNOWN_EVENT_OPTIONS.map(e=>`
+    <label class="event-box ${active.has(e.id)?'active':''}">
+      <div class="check">
+        <input type="checkbox" data-event-id="${e.id}" ${active.has(e.id)?'checked':''} />
+        <div><strong>${e.event}</strong><div class="muted small" style="margin-top:4px">📅 ${formatDateDisplay(e.date)} • 🕒 ${formatTimeDisplay(e.eventTime)}</div></div>
       </div>
-      <div>
-        <h2 className="text-xl font-semibold tracking-tight">{title}</h2>
-        <p className="text-sm text-zinc-400">{subtitle}</p>
+    </label>`).join('');
+  el.eventCheckList.querySelectorAll('[data-event-id]').forEach(cb=>{
+    cb.addEventListener('change',()=>{
+      const id=cb.dataset.eventId,match=KNOWN_EVENT_OPTIONS.find(e=>e.id===id); if(!match) return;
+      const exists=state.selectedEvents.some(e=>e.id===id);
+      if(cb.checked && !exists) state.selectedEvents.push({...match,notes:''});
+      if(!cb.checked && exists) state.selectedEvents=state.selectedEvents.filter(e=>e.id!==id);
+      invalidateReview();
+    });
+  });
+}
+function renderSelectedKnownEvents(){
+  if(!state.selectedEvents.length){el.selectedKnownEvents.className='status';el.selectedKnownEvents.textContent='No Carnival events selected yet.';return;}
+  el.selectedKnownEvents.className='';
+  el.selectedKnownEvents.innerHTML=state.selectedEvents.map(e=>`
+    <div class="event-box" style="margin-top:16px">
+      <strong>${e.event}</strong>
+      <div class="muted small" style="margin-top:4px">📅 ${formatDateDisplay(e.date)} • 🕒 ${formatTimeDisplay(e.eventTime)}</div>
+      <div style="margin-top:12px"><label for="note-${e.id}">Notes</label><textarea id="note-${e.id}" data-known-id="${e.id}" rows="2" placeholder="Any special instruction">${escapeHtml(e.notes||'')}</textarea></div>
+    </div>`).join('');
+  el.selectedKnownEvents.querySelectorAll('[data-known-id]').forEach(t=>{
+    t.addEventListener('input',()=>{const item=state.selectedEvents.find(e=>e.id===t.dataset.knownId); if(!item) return; item.notes=t.value; invalidateReview();});
+  });
+}
+function renderCustomEvents(){
+  const incomplete=state.customEvents.filter(r=>hasAnyCustomRequestContent(r)&&!isCompleteCustomRequest(r)).length;
+  el.customWarning.classList.toggle('hidden',incomplete===0);
+  if(!state.customEvents.length){el.customEventsContainer.className='status';el.customEventsContainer.textContent='No additional events added yet. Use the button above to add one.';return;}
+  el.customEventsContainer.className='';
+  el.customEventsContainer.innerHTML=state.customEvents.map(r=>`
+    <div class="event-box" style="margin-top:16px">
+      <div class="top">
+        <div><strong>${escapeHtml(r.event||'Additional Event')}</strong><div class="muted small" style="margin-top:4px">📅 ${r.date?formatDateDisplay(r.date):'No date'} • 🕒 ${r.eventTime?formatTimeDisplay(r.eventTime):'No event time'}</div></div>
+        <button type="button" class="soft" data-remove-custom="${r.id}">Remove</button>
       </div>
-    </div>
-  );
+      <div class="grid g2" style="margin-top:12px">
+        <div><label>Event Name</label><input type="text" data-field="event" data-custom-id="${r.id}" value="${escapeHtml(r.event)}" placeholder="Enter additional event" /></div>
+        <div><label>Date</label><input type="date" data-field="date" data-custom-id="${r.id}" value="${escapeHtml(r.date)}" /></div>
+        <div><label>Event Time</label><select data-field="eventTime" data-custom-id="${r.id}"><option value="">Select event time</option>${TIME_OPTIONS.map(t=>`<option value="${t.value}" ${r.eventTime===t.value?'selected':''}>${t.label}</option>`).join('')}</select></div>
+        <div><label>Destination</label><input type="text" data-field="destination" data-custom-id="${r.id}" value="${escapeHtml(r.destination)}" placeholder="Restaurant, venue, marina, or address" /></div>
+        <div><label>Requested Time Window</label><input type="text" data-field="requestedWindow" data-custom-id="${r.id}" value="${escapeHtml(r.requestedWindow)}" placeholder="Example: 8:00 PM pickup or 8:00–8:30 PM" /></div>
+        <div style="grid-column:1 / -1"><label>Notes</label><textarea data-field="notes" data-custom-id="${r.id}" rows="2" placeholder="Any special instruction">${escapeHtml(r.notes)}</textarea></div>
+      </div>
+    </div>`).join('');
+  el.customEventsContainer.querySelectorAll('[data-remove-custom]').forEach(btn=>btn.addEventListener('click',()=>{state.customEvents=state.customEvents.filter(r=>r.id!==btn.dataset.removeCustom); invalidateReview();}));
+  el.customEventsContainer.querySelectorAll('[data-custom-id]').forEach(field=>{
+    const handler=()=>{const item=state.customEvents.find(r=>r.id===field.dataset.customId); if(!item) return; item[field.dataset.field]=field.value; invalidateReview();};
+    field.addEventListener('input',handler); field.addEventListener('change',handler);
+  });
 }
-
-function FieldLabel({ children }) {
-  return <label className="mb-1 block text-sm font-medium text-zinc-200">{children}</label>;
+function renderCapacityNote(){const n=getPassengerCapacityState(); el.capacityNote.className=`status small ${n.cls}`.trim(); el.capacityNote.textContent=n.msg;}
+function renderProgress(){
+  const complete=state.customEvents.filter(r=>hasAnyCustomRequestContent(r)&&isCompleteCustomRequest(r)).length;
+  const drafts=state.customEvents.filter(r=>hasAnyCustomRequestContent(r)&&!isCompleteCustomRequest(r)).length;
+  el.progressLines.innerHTML=[
+    `Travel Details Started: ${(el.arrivalTime.value||el.arrivalFlight.value.trim()||el.arrivalDestination.value)?'Yes':'No'}`,
+    `Known Carnival Events: ${state.selectedEvents.length}`,
+    `Complete Additional Events: ${complete}`,
+    `Additional Event Drafts: ${drafts}`,
+    `Contact Added: ${(el.clientName.value.trim()||el.phone.value.trim()||el.email.value.trim())?'Yes':'No'}`,
+    `Proposal Opened: ${state.hasViewedProposal?'Yes':'No'}`,
+    `Proposal Acknowledged: ${state.depositAcknowledged?'Yes':'No'}`
+  ].map(x=>`<div>${x}</div>`).join('');
 }
-
-function Input({ className = "", ...props }) {
-  return (
-    <input
-      {...props}
-      className={`w-full rounded-2xl border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-amber-400 ${className}`}
-    />
-  );
+function renderSummary(){
+  el.proposalPanel.classList.toggle('hidden',!state.showProposal);
+  el.toggleProposal.textContent=state.showProposal?'Hide Service Proposal':'View Service Proposal';
+  el.summaryWrap.classList.toggle('hidden',!state.showSummary);
+  el.toggleSummary.textContent=state.showSummary?'Hide Review Summary':'Open Review Summary';
+  el.summaryBox.textContent=buildSummaryText();
+  el.proposalAckWrap.classList.toggle('hidden',!state.hasReviewedSummary);
+  el.proposalOpenWarning.classList.toggle('hidden',state.hasViewedProposal);
+  el.depositAck.disabled=!state.hasViewedProposal;
+  el.depositAck.checked=state.depositAcknowledged;
+  el.reviewedSummary.checked=state.hasReviewedSummary;
+  el.submitBtn.classList.toggle('hidden',!(state.hasReviewedSummary&&state.depositAcknowledged));
+  el.submitBtn.disabled=state.isSubmitting;
+  el.submitBtn.textContent=state.isSubmitting?'Sending...':'Return Planning Form';
+  if(!state.showSummary&&!state.hasReviewedSummary){el.summaryStatus.className='status';el.summaryStatus.textContent='Open the summary first. Then review the proposal terms and acknowledgment before returning the planning form.';}
+  else if(state.showSummary&&!state.hasReviewedSummary){el.summaryStatus.className='status';el.summaryStatus.textContent='Review the full planning summary below, then check the review box to continue.';}
+  else if(!state.depositAcknowledged){el.summaryStatus.className='status success';el.summaryStatus.textContent='Summary reviewed. Proposal acknowledgment is still required before return.';}
+  else {el.summaryStatus.className='status success';el.summaryStatus.textContent='Summary reviewed and proposal acknowledged. Return is unlocked.';}
+  renderProgress();
 }
-
-function Textarea({ className = "", ...props }) {
-  return (
-    <textarea
-      {...props}
-      className={`w-full rounded-2xl border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-amber-400 ${className}`}
-    />
-  );
-}
-
-function Select({ className = "", children, ...props }) {
-  return (
-    <div className="relative">
-      <select
-        {...props}
-        className={`w-full appearance-none rounded-2xl border border-zinc-700 bg-zinc-950 px-3 py-2.5 pr-10 text-sm text-white outline-none transition focus:border-amber-400 ${className}`}
-      >
-        {children}
-      </select>
-      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
-    </div>
-  );
-}
-
-function formatPhoneNumber(value) {
-  const digits = value.replace(/\D/g, "").slice(0, 10);
-
-  if (digits.length < 4) return digits;
-  if (digits.length < 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
-  return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
-}
-
-function isValidPhoneNumber(value) {
-  const trimmed = value.trim();
-
-  if (trimmed.length !== 12) return false;
-  if (trimmed[3] !== "-" || trimmed[7] !== "-") return false;
-
-  for (let index = 0; index < trimmed.length; index += 1) {
-    if (index === 3 || index === 7) continue;
-    if (trimmed[index] < "0" || trimmed[index] > "9") return false;
-  }
-
+function render(){renderEventChecks();renderSelectedKnownEvents();renderCustomEvents();renderCapacityNote();renderSummary();}
+function validateBeforeSubmit(){
+  if(!el.clientName.value.trim()) return showSubmissionStatus('error','Name is required.'),false;
+  if(!isValidPhoneNumber(el.phone.value)) return showSubmissionStatus('error','Enter a full phone number in the format 000-000-0000.'),false;
+  if(!isValidEmail(el.email.value)) return showSubmissionStatus('error','Enter a valid email address.'),false;
+  if(!el.arrivalDate.value) return showSubmissionStatus('error','Arrival date is required.'),false;
+  if(!el.arrivalFlight.value.trim()) return showSubmissionStatus('error','Arrival flight number is required.'),false;
+  if(!el.arrivalTime.value) return showSubmissionStatus('error','Arrival time is required.'),false;
+  if(!el.arrivalDestination.value.trim()) return showSubmissionStatus('error','Arrival destination is required.'),false;
+  if(el.arrivalDestination.value==='Other'&&!el.arrivalDestinationOther.value.trim()) return showSubmissionStatus('error','Enter the custom arrival destination.'),false;
+  if(!el.departureDate.value) return showSubmissionStatus('error','Departure date is required.'),false;
+  if(el.departureDate.value<el.arrivalDate.value) return showSubmissionStatus('error','Departure date cannot be earlier than arrival date.'),false;
+  if(!el.departureFlight.value.trim()) return showSubmissionStatus('error','Departure flight number is required.'),false;
+  if(!el.departureTime.value) return showSubmissionStatus('error','Departure time is required.'),false;
+  if(!el.passengerCount.value||Number(el.passengerCount.value)<1) return showSubmissionStatus('error','Passenger count is required.'),false;
+  if(Number(el.passengerCount.value)>VEHICLE_CAPACITY) return showSubmissionStatus('error',`More than ${VEHICLE_CAPACITY} passengers may require a second vehicle. Adjust the count or note the request first.`),false;
+  if(!el.luggageDetails.value.trim()) return showSubmissionStatus('error','Luggage details are required.'),false;
+  const meaningful=state.customEvents.filter(hasAnyCustomRequestContent), incomplete=meaningful.filter(r=>!isCompleteCustomRequest(r));
+  if(incomplete.length>0) return showSubmissionStatus('error','Each additional event must include an event name, date, destination, and either an event time or requested time window.'),false;
+  if(state.selectedEvents.length+meaningful.length===0) return showSubmissionStatus('error','Add at least one Carnival or complete additional event before returning the planning form.'),false;
+  if(!state.hasReviewedSummary) return showSubmissionStatus('error','Review the summary and confirm it before returning the planning form.'),false;
+  if(!state.hasViewedProposal) return showSubmissionStatus('error','Open and review the service proposal before returning the planning form.'),false;
+  if(!state.depositAcknowledged) return showSubmissionStatus('error','Acknowledge the deposit terms before returning the planning form.'),false;
   return true;
 }
-
-function isValidEmail(value) {
-  const trimmed = value.trim();
-  const atIndex = trimmed.indexOf("@");
-  const dotIndex = trimmed.lastIndexOf(".");
-
-  return !trimmed.includes(" ") && atIndex > 0 && dotIndex > atIndex + 1 && dotIndex < trimmed.length - 1;
+async function handleSubmit(){
+  hideSubmissionStatus();
+  if(!validateBeforeSubmit()) return;
+  const payload=new FormData();
+  payload.append('client_name',el.clientName.value.trim());
+  payload.append('phone',el.phone.value.trim());
+  payload.append('email',el.email.value.trim());
+  payload.append('arrival_date',el.arrivalDate.value);
+  payload.append('arrival_flight_number',el.arrivalFlight.value.trim());
+  payload.append('arrival_time',el.arrivalTime.value);
+  payload.append('arrival_destination',getResolvedArrivalDestination());
+  payload.append('departure_date',el.departureDate.value);
+  payload.append('departure_flight_number',el.departureFlight.value.trim());
+  payload.append('departure_time',el.departureTime.value);
+  payload.append('passenger_count',el.passengerCount.value);
+  payload.append('luggage_details',el.luggageDetails.value.trim());
+  payload.append('known_events_json',JSON.stringify(state.selectedEvents));
+  payload.append('additional_events_json',JSON.stringify(state.customEvents));
+  payload.append('summary',buildSummaryText());
+  payload.append('_subject',`Carnival Planning Form — ${el.clientName.value.trim()}`);
+  payload.append('_replyto',el.email.value.trim());
+  state.isSubmitting=true; render();
+  try{
+    const response=await fetch(FORM_ENDPOINT,{method:'POST',body:payload,headers:{Accept:'application/json'}});
+    if(!response.ok) throw new Error('Submission failed');
+    resetForm(true);
+    showSubmissionStatus('success','Your planning form has been sent. We will review it and follow up directly.');
+  }catch(e){
+    showSubmissionStatus('error','Unable to send your planning form right now. Please try again or contact us directly.');
+  }finally{state.isSubmitting=false; render();}
 }
-
-function getResolvedArrivalDestination(arrival) {
-  return arrival.destination === "Other" ? arrival.destinationOther.trim() : arrival.destination.trim();
+function resetForm(preserveStatus=false){
+  el.clientName.value=''; el.phone.value=''; el.email.value=''; el.arrivalDate.value='2026-04-29'; el.departureDate.value='2026-05-04';
+  el.arrivalFlight.value=''; el.departureFlight.value=''; el.arrivalTime.value=''; el.departureTime.value=''; el.passengerCount.value='2'; el.arrivalDestination.value=''; el.arrivalDestinationOther.value=''; el.luggageDetails.value='';
+  state.selectedEvents=[]; state.customEvents=[]; state.showSummary=false; state.showProposal=false; state.hasViewedProposal=false; state.hasReviewedSummary=false; state.depositAcknowledged=false;
+  el.arrivalDestinationOtherWrap.classList.add('hidden'); el.copyStatus.className='status hidden'; el.copyStatus.textContent=''; if(!preserveStatus) hideSubmissionStatus(); render();
 }
-
-function hasAnyCustomRequestContent(request) {
-  return Boolean(
-    request.event.trim() ||
-      request.eventTime ||
-      request.destination.trim() ||
-      request.requestedWindow.trim() ||
-      request.notes.trim()
-  );
+function attachListeners(){
+ [el.clientName,el.email,el.arrivalDate,el.departureDate,el.luggageDetails].forEach(n=>n.addEventListener('input',invalidateReview));
+ el.phone.addEventListener('input',()=>{el.phone.value=formatPhoneNumber(el.phone.value); invalidateReview();});
+ el.arrivalFlight.addEventListener('input',()=>{el.arrivalFlight.value=el.arrivalFlight.value.toUpperCase(); invalidateReview();});
+ el.departureFlight.addEventListener('input',()=>{el.departureFlight.value=el.departureFlight.value.toUpperCase(); invalidateReview();});
+ el.arrivalTime.addEventListener('change',invalidateReview); el.departureTime.addEventListener('change',invalidateReview); el.passengerCount.addEventListener('input',invalidateReview);
+ el.arrivalDestination.addEventListener('change',()=>{const showOther=el.arrivalDestination.value==='Other'; el.arrivalDestinationOtherWrap.classList.toggle('hidden',!showOther); if(!showOther) el.arrivalDestinationOther.value=''; invalidateReview();});
+ el.arrivalDestinationOther.addEventListener('input',invalidateReview);
+ el.toggleProposal.addEventListener('click',()=>{state.showProposal=!state.showProposal; state.hasViewedProposal=true; render();});
+ el.addEventBtn.addEventListener('click',()=>{state.customEvents.push(createCustomEvent()); invalidateReview();});
+ el.toggleSummary.addEventListener('click',()=>{state.showSummary=!state.showSummary; hideSubmissionStatus(); el.copyStatus.className='status hidden'; el.copyStatus.textContent=''; render();});
+ el.copySummary.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(buildSummaryText()); el.copyStatus.className='status success'; el.copyStatus.textContent='Summary copied to clipboard.';}catch{el.copyStatus.className='status error'; el.copyStatus.textContent='Copy failed. Please try again.';}});
+ el.reviewedSummary.addEventListener('change',()=>{state.hasReviewedSummary=el.reviewedSummary.checked; if(!state.hasReviewedSummary){state.depositAcknowledged=false; el.depositAck.checked=false;} hideSubmissionStatus(); render();});
+ el.depositAck.addEventListener('change',()=>{state.depositAcknowledged=el.depositAck.checked; hideSubmissionStatus(); render();});
+ el.submitBtn.addEventListener('click',handleSubmit); el.resetBtn.addEventListener('click',()=>resetForm());
 }
-
-function isCompleteCustomRequest(request) {
-  return Boolean(
-    request.event.trim() &&
-      request.date &&
-      request.destination.trim() &&
-      (request.eventTime || request.requestedWindow.trim())
-  );
-}
-
-function formatDateDisplay(value) {
-  if (!value) return "";
-  const [year, month, day] = value.split("-");
-  if (!year || !month || !day) return value;
-  return `${month}/${day}/${year}`;
-}
-
-function formatTimeDisplay(value) {
-  if (!value) return "";
-  const [hours, minutes] = value.split(":");
-  if (hours == null || minutes == null) return value;
-  const hourNumber = Number(hours);
-  if (Number.isNaN(hourNumber)) return value;
-  const suffix = hourNumber >= 12 ? "PM" : "AM";
-  const displayHour = hourNumber % 12 || 12;
-  return `${displayHour}:${minutes} ${suffix}`;
-}
-
-function getPassengerCapacityState(passengerCountValue) {
-  const passengerCount = Number(passengerCountValue || 0);
-
-  if (!passengerCount) {
-    return {
-      className: "border-zinc-800 bg-black/30 text-zinc-300",
-      message: `Base plan starts at ${BASE_PASSENGER_COUNT} passengers. The vehicle seats up to ${VEHICLE_CAPACITY} total passengers.`,
-    };
-  }
-
-  if (passengerCount > VEHICLE_CAPACITY) {
-    return {
-      className: "border-amber-400/40 bg-amber-400/10 text-amber-100",
-      message: `More than ${VEHICLE_CAPACITY} passengers may require a second vehicle.`,
-    };
-  }
-
-  if (passengerCount === VEHICLE_CAPACITY) {
-    return {
-      className: "border-rose-400/30 bg-rose-500/10 text-rose-100",
-      message: `You are at full vehicle capacity: ${VEHICLE_CAPACITY} passengers total.`,
-    };
-  }
-
-  if (passengerCount > BASE_PASSENGER_COUNT) {
-    return {
-      className: "border-emerald-400/30 bg-emerald-500/10 text-emerald-100",
-      message: `${passengerCount} passengers still fit in the same vehicle. Up to ${VEHICLE_CAPACITY} total are allowed.`,
-    };
-  }
-
-  return {
-    className: "border-zinc-800 bg-black/30 text-zinc-300",
-    message: `Base plan is set for ${BASE_PASSENGER_COUNT} passengers. Additional guests may be added up to ${VEHICLE_CAPACITY} total.`,
-  };
-}
-
-function runSelfChecks() {
-  console.assert(formatPhoneNumber("3406428686") === "340-642-8686", "Phone formatting failed");
-  console.assert(formatPhoneNumber("340") === "340", "Short phone formatting failed");
-  console.assert(formatPhoneNumber("340642") === "340-642", "Mid phone formatting failed");
-  console.assert(isValidPhoneNumber("340-642-8686") === true, "Phone validation failed");
-  console.assert(isValidPhoneNumber("3406428686") === false, "Phone validation should fail without dashes");
-  console.assert(isValidPhoneNumber("340-642-868") === false, "Short phone should fail");
-  console.assert(isValidEmail("name@example.com") === true, "Email validation failed");
-  console.assert(isValidEmail("name example.com") === false, "Invalid email should fail");
-  console.assert(isValidEmail("name@") === false, "Short email should fail");
-  console.assert(isValidEmail("name@example") === false, "Missing email dot suffix should fail");
-  console.assert(formatDateDisplay("2026-04-29") === "04/29/2026", "Date formatting failed");
-  console.assert(formatDateDisplay("") === "", "Empty date formatting failed");
-  console.assert(formatTimeDisplay("19:30") === "7:30 PM", "PM time formatting failed");
-  console.assert(formatTimeDisplay("00:00") === "12:00 AM", "Midnight time formatting failed");
-  console.assert(formatTimeDisplay("12:00") === "12:00 PM", "Noon time formatting failed");
-  console.assert(
-    getResolvedArrivalDestination({ destination: "Other", destinationOther: "Villa" }) === "Villa",
-    "Other destination resolution failed"
-  );
-  console.assert(
-    isCompleteCustomRequest({
-      event: "Dinner",
-      date: "2026-04-29",
-      destination: "Charlotte Amalie",
-      eventTime: "19:00",
-      requestedWindow: "",
-      notes: "",
-    }) === true,
-    "Complete custom request should pass"
-  );
-  console.assert(
-    isCompleteCustomRequest({
-      event: "Dinner",
-      date: "2026-04-29",
-      destination: "",
-      eventTime: "",
-      requestedWindow: "",
-      notes: "",
-    }) === false,
-    "Incomplete custom request should fail"
-  );
-  console.assert(getPassengerCapacityState("2").message.includes("Base plan"), "Base passenger state failed");
-  console.assert(getPassengerCapacityState("5").message.includes("still fit"), "Mid passenger state failed");
-  console.assert(getPassengerCapacityState("6").message.includes("full vehicle capacity"), "Full passenger state failed");
-  console.assert(getPassengerCapacityState("7").message.includes("second vehicle"), "Overflow passenger state failed");
-}
-
-function OfferPanel() {
-  return (
-    <div className="rounded-[28px] border border-amber-400/30 bg-zinc-900/70 p-5 shadow-xl shadow-black/30">
-      <div className="mb-4 flex items-start gap-3">
-        <div className="mt-0.5 rounded-2xl border border-amber-400/40 bg-amber-400/10 p-2 text-amber-300">
-          <CarFront className="h-5 w-5" />
-        </div>
-        <div>
-          <h2 className="text-xl font-semibold tracking-tight">Carnival Service Proposal</h2>
-          <p className="text-sm text-zinc-400">Package terms for the proposed service dates.</p>
-        </div>
-      </div>
-
-      <div className="space-y-4 text-sm leading-6 text-zinc-300">
-        <p>
-          Private driver service for <span className="font-semibold text-white">April 29, 2026 through May 4, 2026</span> is offered at a total package rate of <span className="font-semibold text-amber-300">${PACKAGE_TOTAL}</span> for the proposed service dates.
-        </p>
-        <p>
-          This package includes private transportation during the proposed service dates for Carnival-related activities, including daytime and evening events, local runs, dinner transportation, event drop-offs, pickups, and standby service based on the baseline schedule, requested time windows, and later client-confirmed adjustments during the service period.
-        </p>
-
-        <div className="rounded-[24px] border border-amber-400/30 bg-black/30 p-4 text-sm leading-6 text-zinc-300">
-          <div className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-300">Package Breakdown</div>
-          <div className="mt-3 space-y-3">
-            <div>
-              <div className="font-medium text-white">Service date hold / private availability: $2,100</div>
-              <div className="text-zinc-400">That is $350 per day × 6 days</div>
-            </div>
-            <div>
-              <div className="font-medium text-white">On-call / standby availability premium: $750</div>
-              <div className="text-zinc-400">That is $125 per day × 6 days</div>
-            </div>
-            <div>
-              <div className="font-medium text-white">Carnival / late-hour / high-demand premium: $450</div>
-              <div className="text-zinc-400">That is $75 per day × 6 days</div>
-            </div>
-            <div>
-              <div className="font-medium text-white">Itinerary planning and service coordination: $200</div>
-            </div>
-            <div className="border-t border-amber-400/20 pt-3 font-semibold text-amber-300">Total: $3,500</div>
-          </div>
-        </div>
-
-        <p>
-          This planning form is intended to establish the baseline schedule for the proposed service dates. Final event timing, adjustments, and additional requests may change based on the client’s confirmed plans during the service period.
-        </p>
-      </div>
-
-      <div className="mt-5 rounded-[24px] border border-amber-400/30 bg-black/30 p-4 text-sm leading-6 text-zinc-300">
-        <div className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-300">Deposit Terms</div>
-        <p className="mt-2">
-          Once this planning form is completed and returned, a <span className="font-semibold text-white">50% non-refundable deposit of ${DEPOSIT_AMOUNT}</span> is required to confirm and reserve the service dates. The remaining <span className="font-semibold text-white">${DEPOSIT_AMOUNT}</span> balance is due before service begins. Receipt of the deposit reserves the dates.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function KnownEventCard({ event, onChange }) {
-  return (
-    <div className="rounded-[24px] border border-zinc-800 bg-zinc-950/80 p-4">
-      <div className="mb-4">
-        <div className="text-lg font-semibold tracking-tight">{event.event}</div>
-        <div className="mt-1 flex flex-wrap gap-3 text-sm text-zinc-400">
-          <span className="inline-flex items-center gap-1.5">
-            <CalendarDays className="h-4 w-4" /> {formatDateDisplay(event.date)}
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <Clock3 className="h-4 w-4" /> {formatTimeDisplay(event.eventTime)}
-          </span>
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="md:col-span-2">
-          <FieldLabel>Notes</FieldLabel>
-          <Textarea
-            rows={2}
-            value={event.notes}
-            onChange={(e) => onChange(event.id, "notes", e.target.value)}
-            placeholder="Any special instruction"
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function AdditionalEventCard({ request, onChange, onRemove }) {
-  return (
-    <div className="rounded-[24px] border border-zinc-800 bg-zinc-950/80 p-4">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div>
-          <div className="text-lg font-semibold tracking-tight">{request.event || "Additional Event"}</div>
-          <div className="mt-1 flex flex-wrap gap-3 text-sm text-zinc-400">
-            <span className="inline-flex items-center gap-1.5">
-              <CalendarDays className="h-4 w-4" /> {request.date ? formatDateDisplay(request.date) : "No date"}
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Clock3 className="h-4 w-4" /> {request.eventTime ? formatTimeDisplay(request.eventTime) : "No event time"}
-            </span>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={() => onRemove(request.id)}
-          className="rounded-2xl border border-red-500/30 bg-red-500/10 p-2 text-red-200 transition hover:bg-red-500/20"
-          aria-label={`Delete ${request.event || "additional event"}`}
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <div>
-          <FieldLabel>Event Name</FieldLabel>
-          <Input value={request.event} onChange={(e) => onChange(request.id, "event", e.target.value)} placeholder="Enter additional event" />
-        </div>
-        <div>
-          <FieldLabel>Date</FieldLabel>
-          <Input type="date" value={request.date} onChange={(e) => onChange(request.id, "date", e.target.value)} />
-        </div>
-        <div>
-          <FieldLabel>Event Time</FieldLabel>
-          <Select value={request.eventTime} onChange={(e) => onChange(request.id, "eventTime", e.target.value)}>
-            <option value="">Select event time</option>
-            {TIME_OPTIONS.map((time) => (
-              <option key={time.value} value={time.value}>
-                {time.label}
-              </option>
-            ))}
-          </Select>
-        </div>
-        <div>
-          <FieldLabel>Destination</FieldLabel>
-          <Input
-            value={request.destination || ""}
-            onChange={(e) => onChange(request.id, "destination", e.target.value)}
-            placeholder="Restaurant, venue, marina, or address"
-          />
-        </div>
-        <div>
-          <FieldLabel>Requested Time Window</FieldLabel>
-          <Input
-            value={request.requestedWindow || ""}
-            onChange={(e) => onChange(request.id, "requestedWindow", e.target.value)}
-            placeholder="Example: 8:00 PM pickup or 8:00–8:30 PM"
-          />
-        </div>
-        <div className="md:col-span-2">
-          <FieldLabel>Notes</FieldLabel>
-          <Textarea value={request.notes} onChange={(e) => onChange(request.id, "notes", e.target.value)} rows={2} placeholder="Any special instruction" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-export default function App() {
-  const [clientName, setClientName] = useState("");
-  const [contact, setContact] = useState({ phone: "", email: "" });
-  const [activeKnownEvents, setActiveKnownEvents] = useState([]);
-  const [customRequests, setCustomRequests] = useState([]);
-  const [arrival, setArrival] = useState({
-    arrivalDate: DEFAULT_DATE,
-    flightNumber: "",
-    arrivalTime: "",
-    destination: "",
-    destinationOther: "",
-    departureDate: DEFAULT_DEPARTURE_DATE,
-    departureFlightNumber: "",
-    departureTime: "",
-    passengerCount: String(BASE_PASSENGER_COUNT),
-    luggageDetails: "",
-  });
-  const [showSummary, setShowSummary] = useState(false);
-  const [showProposal, setShowProposal] = useState(false);
-  const [hasViewedProposal, setHasViewedProposal] = useState(false);
-  const [hasReviewedSummary, setHasReviewedSummary] = useState(false);
-  const [depositAcknowledged, setDepositAcknowledged] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submissionState, setSubmissionState] = useState({ type: "idle", message: "" });
-  const [copyState, setCopyState] = useState({ type: "idle", message: "" });
-  const proposalRef = useRef(null);
-
-  useEffect(() => {
-    if (typeof window !== "undefined" && window.location.hostname === "localhost") {
-      runSelfChecks();
-    }
-  }, []);
-
-  useEffect(() => {
-    if (showProposal && proposalRef.current) {
-      proposalRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-  }, [showProposal]);
-
-  const meaningfulCustomRequests = useMemo(
-    () => customRequests.filter((request) => hasAnyCustomRequestContent(request)),
-    [customRequests]
-  );
-
-  const completeCustomRequests = useMemo(
-    () => meaningfulCustomRequests.filter((request) => isCompleteCustomRequest(request)),
-    [meaningfulCustomRequests]
-  );
-
-  const incompleteCustomRequests = useMemo(
-    () => meaningfulCustomRequests.filter((request) => !isCompleteCustomRequest(request)),
-    [meaningfulCustomRequests]
-  );
-
-  const addedItemsCount = activeKnownEvents.length + completeCustomRequests.length;
-  const passengerCapacityState = useMemo(() => getPassengerCapacityState(arrival.passengerCount), [arrival.passengerCount]);
-
-  const invalidateReview = () => {
-    setHasReviewedSummary(false);
-    setDepositAcknowledged(false);
-    setSubmissionState({ type: "idle", message: "" });
-    setCopyState({ type: "idle", message: "" });
-  };
-
-  const toggleKnownEvent = (eventId) => {
-    const match = KNOWN_EVENT_OPTIONS.find((event) => event.id === eventId);
-    if (!match) return;
-
-    setActiveKnownEvents((current) => {
-      const exists = current.some((event) => event.id === eventId);
-      if (exists) {
-        return current.filter((event) => event.id !== eventId);
-      }
-
-      return [...current, { ...match, notes: "" }];
-    });
-
-    invalidateReview();
-  };
-
-  const updateKnownEvent = (id, field, value) => {
-    setActiveKnownEvents((current) => current.map((event) => (event.id === id ? { ...event, [field]: value } : event)));
-    invalidateReview();
-  };
-
-  const addCustomRequest = () => {
-    setCustomRequests((current) => [
-      ...current,
-      {
-        id: Date.now() + Math.floor(Math.random() * 1000),
-        event: "",
-        date: "",
-        eventTime: "",
-        destination: "",
-        requestedWindow: "",
-        notes: "",
-      },
-    ]);
-    invalidateReview();
-  };
-
-  const updateCustomRequest = (id, field, value) => {
-    setCustomRequests((current) => current.map((request) => (request.id === id ? { ...request, [field]: value } : request)));
-    invalidateReview();
-  };
-
-  const removeCustomRequest = (id) => {
-    setCustomRequests((current) => current.filter((request) => request.id !== id));
-    invalidateReview();
-  };
-
-  const resetForm = () => {
-    setClientName("");
-    setContact({ phone: "", email: "" });
-    setActiveKnownEvents([]);
-    setCustomRequests([]);
-    setArrival({
-      arrivalDate: DEFAULT_DATE,
-      flightNumber: "",
-      arrivalTime: "",
-      destination: "",
-      destinationOther: "",
-      departureDate: DEFAULT_DEPARTURE_DATE,
-      departureFlightNumber: "",
-      departureTime: "",
-      passengerCount: String(BASE_PASSENGER_COUNT),
-      luggageDetails: "",
-    });
-    setShowSummary(false);
-    setShowProposal(false);
-    setHasViewedProposal(false);
-    setHasReviewedSummary(false);
-    setDepositAcknowledged(false);
-    setSubmissionState({ type: "idle", message: "" });
-    setCopyState({ type: "idle", message: "" });
-  };
-
-  const summaryText = useMemo(() => {
-    const knownEventLines = activeKnownEvents.map(
-      (event) => `${event.event} — ${formatDateDisplay(event.date)} — Event Time: ${formatTimeDisplay(event.eventTime)}${event.notes ? ` — Notes: ${event.notes}` : ""}`
-    );
-
-    const customLines = meaningfulCustomRequests.map(
-      (request) =>
-        `${request.event || "Additional Event"}${request.date ? ` — ${formatDateDisplay(request.date)}` : ""}${request.eventTime ? ` — Event Time: ${formatTimeDisplay(request.eventTime)}` : ""}${request.destination ? ` — Destination: ${request.destination}` : ""}${request.requestedWindow ? ` — Requested Time Window: ${request.requestedWindow}` : ""}${request.notes ? ` — Notes: ${request.notes}` : ""}`
-    );
-
-    return [
-      "Carnival Service Planning Form",
-      "",
-      `Name: ${clientName || ""}`,
-      `Phone: ${contact.phone || ""}`,
-      `Email: ${contact.email || ""}`,
-      "",
-      `Arrival Date: ${formatDateDisplay(arrival.arrivalDate) || ""}`,
-      `Arrival Flight Number: ${arrival.flightNumber || ""}`,
-      `Arrival Time: ${formatTimeDisplay(arrival.arrivalTime) || ""}`,
-      `Arrival Destination: ${getResolvedArrivalDestination(arrival) || ""}`,
-      `Departure Date: ${formatDateDisplay(arrival.departureDate) || ""}`,
-      `Departure Flight Number: ${arrival.departureFlightNumber || ""}`,
-      `Departure Time: ${formatTimeDisplay(arrival.departureTime) || ""}`,
-      `Passengers: ${arrival.passengerCount || ""}`,
-      `Luggage Details: ${arrival.luggageDetails || ""}`,
-      "",
-      "Known Carnival Events:",
-      ...(knownEventLines.length ? knownEventLines : ["None added yet."]),
-      "",
-      "Additional Events:",
-      ...(customLines.length ? customLines : ["None added yet."]),
-    ].join("\n");
-  }, [activeKnownEvents, arrival, clientName, contact, meaningfulCustomRequests]);
-
-  const copySummary = async () => {
-    try {
-      await navigator.clipboard.writeText(summaryText);
-      setCopyState({ type: "success", message: "Summary copied to clipboard." });
-    } catch {
-      setCopyState({ type: "error", message: "Copy failed. Please try again." });
-    }
-  };
-
-  const validateBeforeSubmit = () => {
-    if (!clientName.trim()) {
-      setSubmissionState({ type: "error", message: "Name is required." });
-      return false;
-    }
-    if (!isValidPhoneNumber(contact.phone)) {
-      setSubmissionState({ type: "error", message: "Enter a full phone number in the format 000-000-0000." });
-      return false;
-    }
-    if (!isValidEmail(contact.email)) {
-      setSubmissionState({ type: "error", message: "Enter a valid email address." });
-      return false;
-    }
-    if (!arrival.arrivalDate) {
-      setSubmissionState({ type: "error", message: "Arrival date is required." });
-      return false;
-    }
-    if (!arrival.flightNumber.trim()) {
-      setSubmissionState({ type: "error", message: "Arrival flight number is required." });
-      return false;
-    }
-    if (!arrival.arrivalTime) {
-      setSubmissionState({ type: "error", message: "Arrival time is required." });
-      return false;
-    }
-    if (!arrival.destination.trim()) {
-      setSubmissionState({ type: "error", message: "Arrival destination is required." });
-      return false;
-    }
-    if (arrival.destination === "Other" && !arrival.destinationOther.trim()) {
-      setSubmissionState({ type: "error", message: "Enter the custom arrival destination." });
-      return false;
-    }
-    if (!arrival.departureDate) {
-      setSubmissionState({ type: "error", message: "Departure date is required." });
-      return false;
-    }
-    if (arrival.departureDate < arrival.arrivalDate) {
-      setSubmissionState({ type: "error", message: "Departure date cannot be earlier than arrival date." });
-      return false;
-    }
-    if (!arrival.departureFlightNumber.trim()) {
-      setSubmissionState({ type: "error", message: "Departure flight number is required." });
-      return false;
-    }
-    if (!arrival.departureTime) {
-      setSubmissionState({ type: "error", message: "Departure time is required." });
-      return false;
-    }
-    if (!arrival.passengerCount || Number(arrival.passengerCount) < 1) {
-      setSubmissionState({ type: "error", message: "Passenger count is required." });
-      return false;
-    }
-    if (Number(arrival.passengerCount) > VEHICLE_CAPACITY) {
-      setSubmissionState({
-        type: "error",
-        message: `More than ${VEHICLE_CAPACITY} passengers may require a second vehicle. Adjust the count or note the request first.`,
-      });
-      return false;
-    }
-    if (!arrival.luggageDetails.trim()) {
-      setSubmissionState({ type: "error", message: "Luggage details are required." });
-      return false;
-    }
-    if (incompleteCustomRequests.length > 0) {
-      setSubmissionState({
-        type: "error",
-        message: "Each additional event must include an event name, date, destination, and either an event time or requested time window.",
-      });
-      return false;
-    }
-    if (addedItemsCount === 0) {
-      setSubmissionState({
-        type: "error",
-        message: "Add at least one Carnival or complete additional event before returning the planning form.",
-      });
-      return false;
-    }
-    return true;
-  };
-
-  const handleSubmit = async () => {
-    setSubmissionState({ type: "idle", message: "" });
-
-    if (!validateBeforeSubmit()) return;
-    if (!hasReviewedSummary) {
-      setSubmissionState({ type: "error", message: "Review the summary and confirm it before returning the planning form." });
-      return;
-    }
-    if (!hasViewedProposal) {
-      setSubmissionState({ type: "error", message: "Open and review the service proposal before returning the planning form." });
-      return;
-    }
-    if (!depositAcknowledged) {
-      setSubmissionState({ type: "error", message: "Acknowledge the deposit terms before returning the planning form." });
-      return;
-    }
-
-    const payload = new FormData();
-    payload.append("client_name", clientName.trim());
-    payload.append("phone", contact.phone.trim());
-    payload.append("email", contact.email.trim());
-    payload.append("arrival_date", arrival.arrivalDate);
-    payload.append("arrival_flight_number", arrival.flightNumber.trim());
-    payload.append("arrival_time", arrival.arrivalTime);
-    payload.append("arrival_destination", getResolvedArrivalDestination(arrival));
-    payload.append("departure_date", arrival.departureDate);
-    payload.append("departure_flight_number", arrival.departureFlightNumber.trim());
-    payload.append("departure_time", arrival.departureTime);
-    payload.append("passenger_count", arrival.passengerCount);
-    payload.append("luggage_details", arrival.luggageDetails.trim());
-    payload.append("summary", summaryText);
-    payload.append("_subject", `Carnival Planning Form — ${clientName.trim()}`);
-    payload.append("_replyto", contact.email.trim());
-
-    setIsSubmitting(true);
-
-    try {
-      const response = await fetch(FORMSPREE_ENDPOINT, {
-        method: "POST",
-        body: payload,
-        headers: { Accept: "application/json" },
-      });
-
-      if (!response.ok) {
-        throw new Error("Submission failed");
-      }
-
-      resetForm();
-      setSubmissionState({ type: "success", message: "Your planning form has been sent. We will review it and follow up directly." });
-    } catch {
-      setSubmissionState({ type: "error", message: "Unable to send your planning form right now. Please try again or contact us directly." });
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mb-6 rounded-[28px] border border-amber-400/30 bg-zinc-900/70 p-5 shadow-2xl shadow-black/40 backdrop-blur">
-          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-300">Superb Executive Transportation</p>
-              <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Carnival Service Planning Form</h1>
-              <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400 sm:text-base">
-                Use this form to establish the baseline schedule for the proposed service dates. Review it, acknowledge it, and return it once the core travel and event structure is in place.
-              </p>
-              <div className="mt-4 flex flex-wrap gap-3">
-                <div className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-xs text-zinc-400">
-                  Planning form only — not a locked final itinerary.
-                </div>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowProposal((current) => !current);
-                    setHasViewedProposal(true);
-                  }}
-                  className="rounded-2xl border border-amber-400/40 bg-amber-400/10 px-4 py-3 text-sm font-medium text-amber-200 transition hover:bg-amber-400/20"
-                >
-                  {showProposal ? "Hide Service Proposal" : "View Service Proposal"}
-                </button>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3">
-                <div className="text-xs uppercase tracking-wide text-zinc-500">Service Dates</div>
-                <div className="mt-1 text-sm font-medium">Apr 29 – May 4</div>
-              </div>
-              <div className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3">
-                <div className="text-xs uppercase tracking-wide text-zinc-500">Package Rate</div>
-                <div className="mt-1 text-sm font-medium">${PACKAGE_TOTAL}</div>
-              </div>
-              <div className="col-span-2 rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 sm:col-span-1">
-                <div className="text-xs uppercase tracking-wide text-zinc-500">Return Process</div>
-                <div className="mt-1 text-sm font-medium">Review → Acknowledge → Return</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {showProposal && (
-          <div ref={proposalRef} className="mb-6 space-y-4">
-            <OfferPanel />
-          </div>
-        )}
-
-        <div className="grid gap-6 xl:grid-cols-[1.35fr_0.85fr]">
-          <div className="space-y-6">
-            <div className="rounded-[28px] border border-zinc-800 bg-zinc-900/60 p-5 shadow-xl shadow-black/30">
-              <SectionHeader icon={User} title="Trip & Contact Basics" subtitle="Start here with who the plan belongs to, then anchor the travel details." />
-              <div className="grid gap-4 lg:grid-cols-2">
-                <div className="rounded-[24px] border border-zinc-800 bg-zinc-950/80 p-4">
-                  <div className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500">Contact</div>
-                  <div className="grid gap-4">
-                    <div>
-                      <FieldLabel>Name</FieldLabel>
-                      <Input value={clientName} onChange={(e) => { setClientName(e.target.value); invalidateReview(); }} placeholder="Enter name" />
-                    </div>
-                    <div>
-                      <FieldLabel>Phone</FieldLabel>
-                      <Input
-                        value={contact.phone}
-                        onChange={(e) => {
-                          setContact((current) => ({ ...current, phone: formatPhoneNumber(e.target.value) }));
-                          invalidateReview();
-                        }}
-                        placeholder="000-000-0000"
-                        inputMode="numeric"
-                        maxLength={12}
-                      />
-                    </div>
-                    <div>
-                      <FieldLabel>Email</FieldLabel>
-                      <Input
-                        type="email"
-                        value={contact.email}
-                        onChange={(e) => {
-                          setContact((current) => ({ ...current, email: e.target.value }));
-                          invalidateReview();
-                        }}
-                        placeholder="name@example.com"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                <div className="rounded-[24px] border border-zinc-800 bg-zinc-950/80 p-4">
-                  <div className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500">Travel</div>
-                  <div className="grid gap-4 md:grid-cols-2">
-                    <div>
-                      <FieldLabel>Arrival Date</FieldLabel>
-                      <Input type="date" value={arrival.arrivalDate} onChange={(e) => { setArrival((current) => ({ ...current, arrivalDate: e.target.value })); invalidateReview(); }} />
-                    </div>
-                    <div>
-                      <FieldLabel>Departure Date</FieldLabel>
-                      <Input type="date" value={arrival.departureDate} min={arrival.arrivalDate || undefined} onChange={(e) => { setArrival((current) => ({ ...current, departureDate: e.target.value })); invalidateReview(); }} />
-                    </div>
-                    <div>
-                      <FieldLabel>Arrival Flight Number</FieldLabel>
-                      <Input value={arrival.flightNumber} onChange={(e) => { setArrival((current) => ({ ...current, flightNumber: e.target.value.toUpperCase() })); invalidateReview(); }} placeholder="AA1234" />
-                    </div>
-                    <div>
-                      <FieldLabel>Arrival Time</FieldLabel>
-                      <Select value={arrival.arrivalTime} onChange={(e) => { setArrival((current) => ({ ...current, arrivalTime: e.target.value })); invalidateReview(); }}>
-                        <option value="">Select arrival time</option>
-                        {TIME_OPTIONS.map((time) => (
-                          <option key={time.value} value={time.value}>{time.label}</option>
-                        ))}
-                      </Select>
-                    </div>
-                    <div>
-                      <FieldLabel>Departure Flight Number</FieldLabel>
-                      <Input value={arrival.departureFlightNumber} onChange={(e) => { setArrival((current) => ({ ...current, departureFlightNumber: e.target.value.toUpperCase() })); invalidateReview(); }} placeholder="AA5678" />
-                    </div>
-                    <div>
-                      <FieldLabel>Departure Time</FieldLabel>
-                      <Select value={arrival.departureTime} onChange={(e) => { setArrival((current) => ({ ...current, departureTime: e.target.value })); invalidateReview(); }}>
-                        <option value="">Select departure time</option>
-                        {TIME_OPTIONS.map((time) => (
-                          <option key={time.value} value={time.value}>{time.label}</option>
-                        ))}
-                      </Select>
-                    </div>
-                    <div>
-                      <FieldLabel>Passenger Count</FieldLabel>
-                      <Input type="number" min="1" max="6" value={arrival.passengerCount} onChange={(e) => { setArrival((current) => ({ ...current, passengerCount: e.target.value })); invalidateReview(); }} placeholder={`Base plan starts at ${BASE_PASSENGER_COUNT}`} />
-                      <div className={`mt-2 rounded-[20px] border px-3 py-3 text-xs leading-5 ${passengerCapacityState.className}`}>
-                        {passengerCapacityState.message}
-                      </div>
-                    </div>
-                    <div className="md:col-span-2">
-                      <FieldLabel>Arrival Destination</FieldLabel>
-                      <Select
-                        value={arrival.destination}
-                        onChange={(e) => {
-                          setArrival((current) => ({
-                            ...current,
-                            destination: e.target.value,
-                            ...(e.target.value !== "Other" ? { destinationOther: "" } : {}),
-                          }));
-                          invalidateReview();
-                        }}
-                      >
-                        <option value="">Choose destination</option>
-                        <option value="Margaritaville Vacation Club">Margaritaville Vacation Club</option>
-                        <option value="The Ritz-Carlton, St. Thomas">The Ritz-Carlton, St. Thomas</option>
-                        <option value="Marriott Frenchman's Reef">Marriott Frenchman's Reef</option>
-                        <option value="Point Pleasant Resort">Point Pleasant Resort</option>
-                        <option value="Secret Harbour Beach Resort">Secret Harbour Beach Resort</option>
-                        <option value="Bolongo Bay Beach Resort">Bolongo Bay Beach Resort</option>
-                        <option value="Emerald Beach Resort">Emerald Beach Resort</option>
-                        <option value="Red Hook Ferry Terminal">Red Hook Ferry Terminal</option>
-                        <option value="Charlotte Amalie">Charlotte Amalie</option>
-                        <option value="Yacht Haven Grande">Yacht Haven Grande</option>
-                        <option value="Other">Other</option>
-                      </Select>
-                    </div>
-                    {arrival.destination === "Other" && (
-                      <div className="md:col-span-2">
-                        <FieldLabel>Enter Destination</FieldLabel>
-                        <Input value={arrival.destinationOther} onChange={(e) => { setArrival((current) => ({ ...current, destinationOther: e.target.value })); invalidateReview(); }} placeholder="Hotel, villa, marina, or address" />
-                      </div>
-                    )}
-                    <div className="md:col-span-2">
-                      <FieldLabel>Luggage Details</FieldLabel>
-                      <Textarea value={arrival.luggageDetails} onChange={(e) => { setArrival((current) => ({ ...current, luggageDetails: e.target.value })); invalidateReview(); }} rows={2} placeholder="Example: 2 carry-ons, 2 checked bags" />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-[28px] border border-zinc-800 bg-zinc-900/60 p-5 shadow-xl shadow-black/30">
-              <SectionHeader icon={CalendarDays} title="Carnival Events" subtitle="Check the events you expect to attend so the baseline planning schedule shows what will likely be attended during the service period." />
-              <div className="space-y-3">
-                {KNOWN_EVENT_OPTIONS.map((event) => {
-                  const checked = activeKnownEvents.some((activeEvent) => activeEvent.id === event.id);
-                  return (
-                    <label
-                      key={event.id}
-                      className={`flex items-start gap-3 rounded-[24px] border p-4 transition ${
-                        checked ? "border-amber-400/40 bg-amber-400/10" : "border-zinc-800 bg-zinc-950/70 hover:border-zinc-700"
-                      }`}
-                    >
-                      <input type="checkbox" checked={checked} onChange={() => toggleKnownEvent(event.id)} className="mt-1 h-4 w-4 rounded border-zinc-600 bg-black text-amber-400 focus:ring-amber-400" />
-                      <div>
-                        <div className="text-base font-semibold text-white">{event.event}</div>
-                        <div className="mt-1 flex flex-wrap gap-3 text-sm text-zinc-400">
-                          <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-4 w-4" /> {formatDateDisplay(event.date)}</span>
-                          <span className="inline-flex items-center gap-1.5"><Clock3 className="h-4 w-4" /> {formatTimeDisplay(event.eventTime)}</span>
-                        </div>
-                      </div>
-                    </label>
-                  );
-                })}
-              </div>
-
-              {activeKnownEvents.length > 0 && (
-                <div className="mt-5 space-y-4">
-                  {activeKnownEvents.map((event) => (
-                    <KnownEventCard key={event.id} event={event} onChange={updateKnownEvent} />
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="rounded-[28px] border border-zinc-800 bg-zinc-900/60 p-5 shadow-xl shadow-black/30">
-              <SectionHeader icon={CarFront} title="Additional Events" subtitle="Add dinners, private outings, or other events that are not listed above." />
-              <div className="mb-4 flex flex-wrap gap-3">
-                <button type="button" onClick={addCustomRequest} className="rounded-2xl border border-amber-400/40 bg-amber-400/10 px-4 py-2 text-sm font-medium text-amber-200 transition hover:bg-amber-400/20">
-                  <span className="inline-flex items-center gap-2"><Plus className="h-4 w-4" /> Add Additional Event</span>
-                </button>
-              </div>
-
-              {incompleteCustomRequests.length > 0 && (
-                <div className="mb-4 rounded-[24px] border border-amber-400/30 bg-amber-400/10 p-4 text-sm text-amber-100">
-                  Additional events only count when they include an event name, date, destination, and either an event time or requested time window.
-                </div>
-              )}
-
-              {customRequests.length === 0 ? (
-                <div className="rounded-[24px] border border-dashed border-zinc-700 bg-zinc-950/70 p-5 text-sm text-zinc-400">
-                  No additional events added yet. Use the button above to add one.
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  {customRequests.map((request) => (
-                    <AdditionalEventCard key={request.id} request={request} onChange={updateCustomRequest} onRemove={removeCustomRequest} />
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="rounded-[28px] border border-zinc-800 bg-zinc-900/60 p-5 shadow-xl shadow-black/30 xl:sticky xl:top-6">
-              <SectionHeader icon={ClipboardCheck} title="Return Checklist" subtitle="Keep this panel in review mode until the planning details are correct." />
-
-              <div className="space-y-3 text-sm">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowSummary((current) => !current);
-                    setSubmissionState({ type: "idle", message: "" });
-                    setCopyState({ type: "idle", message: "" });
-                  }}
-                  className="w-full rounded-2xl border border-amber-400/40 bg-amber-400/10 px-4 py-3 font-medium text-amber-200 transition hover:bg-amber-400/20"
-                >
-                  {showSummary ? "Hide Review Summary" : "Open Review Summary"}
-                </button>
-
-                <button type="button" onClick={copySummary} className="w-full rounded-2xl border border-zinc-700 bg-zinc-950 px-4 py-3 font-medium text-white transition hover:border-zinc-500">
-                  Copy Schedule Summary
-                </button>
-
-                {copyState.type !== "idle" && (
-                  <div className={`rounded-2xl border px-4 py-3 text-xs ${copyState.type === "success" ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-200" : "border-red-500/20 bg-red-500/10 text-red-200"}`}>
-                    {copyState.message}
-                  </div>
-                )}
-
-                {!showSummary && !hasReviewedSummary && (
-                  <div className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-xs text-zinc-400">
-                    Open the summary first. Then review the proposal terms and acknowledgment before returning the planning form.
-                  </div>
-                )}
-
-                {showSummary && !hasReviewedSummary && (
-                  <div className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-xs text-zinc-400">
-                    Review the full planning summary below, then check the review box to continue.
-                  </div>
-                )}
-
-                {hasReviewedSummary && (
-                  <div className="space-y-3">
-                    {!depositAcknowledged && (
-                      <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-xs text-emerald-200">
-                        Summary reviewed. Proposal acknowledgment is still required before return.
-                      </div>
-                    )}
-
-                    <div className="rounded-[24px] border border-zinc-800 bg-zinc-950/80 p-4 text-sm text-zinc-300">
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <div className="text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500">Proposal Acknowledgment</div>
-                          <p className="mt-2 text-zinc-400">Open the service proposal, review it, then acknowledge the deposit terms here before returning the planning form.</p>
-                        </div>
-                        {!showProposal && (
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setShowProposal(true);
-                              setHasViewedProposal(true);
-                            }}
-                            className="shrink-0 rounded-2xl border border-amber-400/40 bg-amber-400/10 px-3 py-2 text-xs font-medium text-amber-200 transition hover:bg-amber-400/20"
-                          >
-                            View Proposal
-                          </button>
-                        )}
-                      </div>
-
-                      {!hasViewedProposal && (
-                        <div className="mt-4 rounded-2xl border border-amber-400/30 bg-amber-400/10 px-4 py-3 text-xs text-amber-100">
-                          Open the service proposal first to enable acknowledgment.
-                        </div>
-                      )}
-
-                      <label className="mt-4 flex items-start gap-3 rounded-[24px] border border-zinc-800 bg-black/30 p-4 text-sm text-zinc-300">
-                        <input
-                          type="checkbox"
-                          checked={depositAcknowledged}
-                          disabled={!hasViewedProposal}
-                          onChange={(e) => {
-                            setDepositAcknowledged(e.target.checked);
-                            setSubmissionState({ type: "idle", message: "" });
-                            setCopyState({ type: "idle", message: "" });
-                          }}
-                          className="mt-0.5 h-4 w-4 rounded border-zinc-600 bg-black text-amber-400 focus:ring-amber-400"
-                        />
-                        <span>I understand that a 50% non-refundable deposit of ${DEPOSIT_AMOUNT} is required to confirm and reserve these dates.</span>
-                      </label>
-                    </div>
-                  </div>
-                )}
-
-                {hasReviewedSummary && depositAcknowledged && (
-                  <button
-                    type="button"
-                    onClick={handleSubmit}
-                    disabled={isSubmitting}
-                    className="w-full rounded-2xl border border-amber-400/40 bg-amber-400 px-4 py-3 font-semibold text-black transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    <span className="inline-flex items-center justify-center gap-2">
-                      <Send className="h-4 w-4" /> {isSubmitting ? "Sending..." : "Return Planning Form"}
-                    </span>
-                  </button>
-                )}
-
-                <button type="button" onClick={resetForm} disabled={isSubmitting} className="w-full rounded-2xl border border-zinc-700 bg-zinc-950 px-4 py-3 font-medium text-white transition hover:border-zinc-500 disabled:cursor-not-allowed disabled:opacity-60">
-                  Reset Form
-                </button>
-              </div>
-
-              {submissionState.type !== "idle" && (
-                <div className={`mt-4 rounded-[24px] border p-4 text-sm ${submissionState.type === "success" ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-200" : "border-red-500/30 bg-red-500/10 text-red-200"}`}>
-                  {submissionState.message}
-                </div>
-              )}
-
-              <div className="mt-4 rounded-[24px] border border-zinc-800 bg-zinc-950/80 p-4 text-sm text-zinc-300">
-                <div className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500">Planning Progress</div>
-                <div className="space-y-2 text-zinc-400">
-                  <div>Travel Details Started: {arrival.arrivalTime || arrival.flightNumber || arrival.destination ? "Yes" : "No"}</div>
-                  <div>Known Carnival Events: {activeKnownEvents.length}</div>
-                  <div>Complete Additional Events: {completeCustomRequests.length}</div>
-                  <div>Additional Event Drafts: {incompleteCustomRequests.length}</div>
-                  <div>Contact Added: {clientName || contact.phone || contact.email ? "Yes" : "No"}</div>
-                  <div>Proposal Opened: {hasViewedProposal ? "Yes" : "No"}</div>
-                  <div>Proposal Acknowledged: {depositAcknowledged ? "Yes" : "No"}</div>
-                </div>
-              </div>
-
-              {showSummary && (
-                <div className="mt-4 space-y-4">
-                  <pre className="whitespace-pre-wrap rounded-[24px] border border-zinc-800 bg-black p-4 text-xs leading-6 text-zinc-300">
-                    {summaryText}
-                  </pre>
-                  <label className="flex items-start gap-3 rounded-[24px] border border-zinc-800 bg-zinc-950/80 p-4 text-sm text-zinc-300">
-                    <input
-                      type="checkbox"
-                      checked={hasReviewedSummary}
-                      onChange={(e) => {
-                        setHasReviewedSummary(e.target.checked);
-                        if (!e.target.checked) {
-                          setDepositAcknowledged(false);
-                        }
-                        setSubmissionState({ type: "idle", message: "" });
-                        setCopyState({ type: "idle", message: "" });
-                      }}
-                      className="mt-0.5 h-4 w-4 rounded border-zinc-600 bg-black text-amber-400 focus:ring-amber-400"
-                    />
-                    <span>I reviewed the summary above and I am ready to move to the return step.</span>
-                  </label>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+buildTimeOptions(el.arrivalTime,'Select arrival time'); buildTimeOptions(el.departureTime,'Select departure time'); attachListeners(); render();
+</script>
+</body>
+</html>

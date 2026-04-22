@@ -1,0 +1,1228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Carnival Service Planning Form | Superb Executive Transportation</title>
+  <style>
+    :root {
+      --bg: #000000;
+      --panel: #111111;
+      --panel-soft: #161616;
+      --panel-deep: #0a0a0a;
+      --line: #2a2a2a;
+      --text: #ffffff;
+      --muted: #b3b3b3;
+      --gold: #d4af37;
+      --gold-soft: rgba(212, 175, 55, 0.16);
+      --success: #9fe3b0;
+      --success-bg: rgba(45, 136, 82, 0.18);
+      --error: #ffb0b0;
+      --error-bg: rgba(180, 32, 32, 0.18);
+      --danger: #ff8d8d;
+      --danger-bg: rgba(180, 32, 32, 0.14);
+      --shadow: 0 18px 45px rgba(0,0,0,.35);
+      --radius-xl: 28px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+
+    .page {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+
+    .panel {
+      background: linear-gradient(180deg, rgba(18,18,18,.96), rgba(12,12,12,.96));
+      border: 1px solid var(--line);
+      border-radius: var(--radius-xl);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .panel + .panel { margin-top: 24px; }
+
+    .hero {
+      border-color: rgba(212, 175, 55, 0.30);
+      background: linear-gradient(180deg, rgba(25,25,25,.98), rgba(12,12,12,.98));
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr .9fr;
+      gap: 18px;
+      align-items: end;
+    }
+
+    .eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .28em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.08;
+    }
+
+    .hero p {
+      margin: 12px 0 0;
+      color: var(--muted);
+      max-width: 820px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      background: var(--panel-deep);
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #8f8f8f;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+    }
+
+    .stat-value {
+      margin-top: 6px;
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .section-head {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .section-icon {
+      width: 40px;
+      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 16px;
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      background: var(--gold-soft);
+      color: var(--gold);
+      font-size: 18px;
+      flex: 0 0 auto;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      font-size: 22px;
+    }
+
+    .section-head p {
+      margin: 6px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .offer-copy {
+      color: #d4d4d4;
+      font-size: 14px;
+    }
+
+    .offer-copy p { margin: 0 0 16px; }
+
+    .offer-copy strong { color: var(--text); }
+    .gold { color: var(--gold); }
+
+    .subpanel {
+      border: 1px solid rgba(212, 175, 55, 0.24);
+      background: rgba(0,0,0,.32);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+    }
+
+    .sub-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .24em;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+
+    .breakdown-item + .breakdown-item {
+      margin-top: 12px;
+    }
+
+    .breakdown-label {
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .breakdown-detail {
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .breakdown-total {
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid rgba(212, 175, 55, 0.18);
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    .layout {
+      margin-top: 24px;
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) minmax(320px, .85fr);
+      gap: 24px;
+      align-items: start;
+    }
+
+    .stack > .panel + .panel { margin-top: 24px; }
+
+    .grid-3, .grid-2 {
+      display: grid;
+      gap: 16px;
+    }
+
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .field label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #e8e8e8;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid #3a3a3a;
+      background: #050505;
+      color: var(--text);
+      padding: 12px 14px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--gold);
+    }
+
+    textarea { resize: vertical; min-height: 92px; }
+
+    .event-selector {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    .help-chip {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: var(--panel-deep);
+      padding: 14px 16px;
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 300px;
+    }
+
+    .empty {
+      border: 1px dashed #4a4a4a;
+      border-radius: var(--radius-lg);
+      background: rgba(5,5,5,.85);
+      padding: 18px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .event-card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: rgba(5,5,5,.88);
+      padding: 18px;
+    }
+
+    .event-card + .event-card { margin-top: 16px; }
+
+    .event-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .event-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .event-meta {
+      margin-top: 8px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .danger-btn, .ghost-btn, .gold-btn {
+      border-radius: 16px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 700;
+      transition: .18s ease;
+    }
+
+    .danger-btn {
+      background: var(--danger-bg);
+      border-color: rgba(255, 141, 141, 0.28);
+      color: var(--danger);
+      width: 40px;
+      height: 40px;
+    }
+
+    .danger-btn:hover { background: rgba(180,32,32,.22); }
+
+    .gold-btn {
+      background: var(--gold);
+      color: #000;
+      border-color: rgba(212,175,55,.45);
+      padding: 12px 16px;
+    }
+
+    .gold-btn:hover { filter: brightness(1.05); }
+
+    .gold-btn[disabled] {
+      opacity: .6;
+      cursor: not-allowed;
+    }
+
+    .ghost-btn {
+      background: #050505;
+      border-color: #3a3a3a;
+      color: var(--text);
+      padding: 12px 16px;
+      width: 100%;
+    }
+
+    .ghost-btn:hover { border-color: #666; }
+
+    .inline-btn {
+      width: auto;
+      padding: 11px 16px;
+      background: var(--gold-soft);
+      color: #f3e2a5;
+      border: 1px solid rgba(212,175,55,.35);
+    }
+
+    .inline-btn:hover { background: rgba(212,175,55,.22); }
+
+    .summary-sticky {
+      position: sticky;
+      top: 24px;
+    }
+
+    .summary-actions > * + * { margin-top: 12px; }
+
+    .notice {
+      border-radius: 18px;
+      border: 1px solid var(--line);
+      background: var(--panel-deep);
+      color: var(--muted);
+      padding: 14px 16px;
+      font-size: 12px;
+    }
+
+    .notice.success {
+      border-color: rgba(100, 200, 130, .25);
+      background: var(--success-bg);
+      color: var(--success);
+    }
+
+    .notice.error {
+      border-color: rgba(255, 100, 100, .25);
+      background: var(--error-bg);
+      color: var(--error);
+    }
+
+    .checkbox-row {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      border: 1px solid var(--line);
+      background: rgba(5,5,5,.88);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      color: #d6d6d6;
+      font-size: 14px;
+    }
+
+    .checkbox-row input {
+      width: 18px;
+      height: 18px;
+      margin-top: 2px;
+      accent-color: var(--gold);
+    }
+
+    .mini-card {
+      margin-top: 16px;
+      border: 1px solid var(--line);
+      background: rgba(5,5,5,.88);
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      font-size: 14px;
+    }
+
+    .mini-eyebrow {
+      margin-bottom: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .24em;
+      color: #8f8f8f;
+    }
+
+    .mini-lines > div + div { margin-top: 8px; }
+    .mini-lines { color: var(--muted); }
+
+    pre.summary-box {
+      margin: 0;
+      white-space: pre-wrap;
+      border: 1px solid var(--line);
+      background: #000;
+      border-radius: var(--radius-lg);
+      padding: 16px;
+      color: #d8d8d8;
+      font-size: 12px;
+      line-height: 1.7;
+      overflow-wrap: anywhere;
+    }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 1100px) {
+      .layout, .hero-grid { grid-template-columns: 1fr; }
+      .summary-sticky { position: static; }
+    }
+
+    @media (max-width: 800px) {
+      .grid-3, .grid-2, .stats, .event-selector { grid-template-columns: 1fr; }
+      .help-chip { max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="panel hero">
+      <div class="hero-grid">
+        <div>
+          <div class="eyebrow">Superb Executive Transportation</div>
+          <h1>Carnival Service Planning Form</h1>
+          <p>Review the proposed service schedule, mark the events you expect to attend, and return the form for final scheduling.</p>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-label">Service Dates</div>
+            <div class="stat-value">Apr 29 – May 4</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Package Rate</div>
+            <div class="stat-value">$3,500.00</div>
+          </div>
+          <div class="stat">
+            <div class="stat-label">Deposit Due</div>
+            <div class="stat-value">$1,750.00</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel" id="offer-panel">
+      <div class="section-head">
+        <div class="section-icon">🚘</div>
+        <div>
+          <h2>Carnival Service Proposal</h2>
+          <p>Package terms for the proposed Carnival service dates.</p>
+        </div>
+      </div>
+
+      <div class="offer-copy">
+        <p>Private driver service for <strong>April 29, 2026 through May 4, 2026</strong> is offered at a total package rate of <strong class="gold">$3,500.00</strong> for the proposed service dates.</p>
+        <p>This package includes private transportation during the proposed service dates for Carnival-related activities, including daytime and evening events, local runs, dinner transportation, event drop-offs, pickups, and standby service based on the client’s confirmed itinerary and requested time windows.</p>
+
+        <div class="subpanel">
+          <div class="sub-eyebrow">Package Breakdown</div>
+          <div class="breakdown-item">
+            <div class="breakdown-label">Service date hold / private availability: $2,100</div>
+            <div class="breakdown-detail">That is $350 per day × 6 days</div>
+          </div>
+          <div class="breakdown-item">
+            <div class="breakdown-label">On-call / standby availability premium: $750</div>
+            <div class="breakdown-detail">That is $125 per day × 6 days</div>
+          </div>
+          <div class="breakdown-item">
+            <div class="breakdown-label">Carnival / late-hour / high-demand premium: $450</div>
+            <div class="breakdown-detail">That is $75 per day × 6 days</div>
+          </div>
+          <div class="breakdown-item">
+            <div class="breakdown-label">Itinerary planning and service coordination: $200</div>
+          </div>
+          <div class="breakdown-total">Total: $3,500</div>
+        </div>
+
+        <p style="margin-top:16px;">This planning form is used to confirm expected event attendance, destinations, requested time windows, and any notes for the proposed service dates. The planning schedule may be adjusted based on the client’s final confirmations and service needs during the proposed service period.</p>
+        <p>Additional events, adjustments, or itinerary changes during the package period may be accommodated as scheduling allows.</p>
+
+        <div class="subpanel" style="margin-top:16px;">
+          <div class="sub-eyebrow">Deposit Terms</div>
+          <p style="margin:0;">Once this planning form is completed and returned, a <strong>50% non-refundable deposit of $1,750.00</strong> is required to confirm and reserve the service dates. The remaining <strong>$1,750.00</strong> balance is due before service begins. Receipt of the deposit reserves the dates.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="layout">
+      <div class="stack">
+        <section class="panel">
+          <div class="section-head">
+            <div class="section-icon">👤</div>
+            <div>
+              <h2>Your Information</h2>
+              <p>Use the contact details tied to these proposed service dates.</p>
+            </div>
+          </div>
+          <div class="grid-3">
+            <div class="field">
+              <label for="clientName">Name</label>
+              <input id="clientName" type="text" placeholder="Enter name" />
+            </div>
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input id="phone" type="tel" placeholder="000-000-0000" inputmode="numeric" maxlength="12" />
+            </div>
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" type="email" placeholder="name@example.com" />
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div class="section-icon">📅</div>
+            <div>
+              <h2>Carnival Events</h2>
+              <p>Select the Carnival events you expect to attend and add the destination and requested time window below.</p>
+            </div>
+          </div>
+
+          <div class="event-selector">
+            <div class="field">
+              <label for="knownEventSelect">Select Event</label>
+              <select id="knownEventSelect"></select>
+            </div>
+            <div class="help-chip">Select an event, then add the destination, requested time window, and notes below.</div>
+          </div>
+
+          <div id="knownEventsContainer" class="empty">No events added yet. Select one from the dropdown.</div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div class="section-icon">✈️</div>
+            <div>
+              <h2>Travel Details</h2>
+              <p>Add flight and destination details if they are already known.</p>
+            </div>
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label for="arrivalDate">Arrival Date</label>
+              <input id="arrivalDate" type="date" value="2026-04-29" />
+            </div>
+            <div class="field">
+              <label for="departureDate">Departure Date</label>
+              <input id="departureDate" type="date" value="2026-05-04" />
+            </div>
+            <div class="field">
+              <label for="flightNumber">Flight Number</label>
+              <input id="flightNumber" type="text" placeholder="AA1234" />
+            </div>
+            <div class="field">
+              <label for="arrivalTime">Arrival Time</label>
+              <select id="arrivalTime"></select>
+            </div>
+            <div class="field">
+              <label for="arrivalDestination">Arrival Destination</label>
+              <select id="arrivalDestination"></select>
+            </div>
+            <div class="field hidden" id="arrivalDestinationOtherWrap">
+              <label for="arrivalDestinationOther">Enter Destination</label>
+              <input id="arrivalDestinationOther" type="text" placeholder="Hotel, villa, marina, or address" />
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="section-head">
+            <div class="section-icon">➕</div>
+            <div>
+              <h2>Additional Events</h2>
+              <p>Add dinners, private outings, or other events that are not listed above.</p>
+            </div>
+          </div>
+          <button class="gold-btn inline-btn" id="addAdditionalEventBtn" type="button">Add Additional Event</button>
+          <div id="customEventsContainer" class="empty" style="margin-top:16px;">No additional events added yet. Use the button above to add one.</div>
+        </section>
+      </div>
+
+      <aside class="summary-sticky">
+        <section class="panel">
+          <div class="section-head">
+            <div class="section-icon">📍</div>
+            <div>
+              <h2>Planning Summary</h2>
+              <p>Review the current schedule, confirm it, and return it.</p>
+            </div>
+          </div>
+
+          <div class="summary-actions">
+            <button id="toggleSummaryBtn" class="gold-btn inline-btn ghost-btn" type="button">Show Summary</button>
+            <button id="copySummaryBtn" class="ghost-btn" type="button">Copy Schedule Summary</button>
+            <div id="summaryNotice" class="notice">Open the summary, review it, and check the confirmation box to unlock return.</div>
+            <button id="submitBtn" class="gold-btn" type="button" disabled>Return Planning Form</button>
+            <label class="checkbox-row">
+              <input id="depositAcknowledged" type="checkbox" />
+              <span>I understand that a 50% non-refundable deposit of $1,750.00 is required to confirm and reserve these dates.</span>
+            </label>
+            <button id="resetBtn" class="ghost-btn" type="button">Reset Form</button>
+          </div>
+
+          <div id="submissionState" class="notice hidden" style="margin-top:16px;"></div>
+
+          <div class="mini-card">
+            <div class="mini-eyebrow">Client Contact</div>
+            <div class="mini-lines" id="contactMini"></div>
+          </div>
+
+          <div class="mini-card">
+            <div class="mini-eyebrow">Travel Details</div>
+            <div class="mini-lines" id="travelMini"></div>
+          </div>
+
+          <div id="summaryWrap" class="hidden" style="margin-top:16px;">
+            <pre class="summary-box" id="summaryBox"></pre>
+            <label class="checkbox-row" style="margin-top:16px;">
+              <input id="reviewedSummary" type="checkbox" />
+              <span>I reviewed the summary above and I am ready to return this planning form.</span>
+            </label>
+          </div>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <script>
+    const FORMSPREE_ENDPOINT = 'https://formspree.io/f/meoazyoy';
+    const PACKAGE_TOTAL = '3,500.00';
+    const DEPOSIT_AMOUNT = '1,750.00';
+
+    const TIME_OPTIONS = Array.from({ length: 48 }, (_, index) => {
+      const hour = Math.floor(index / 2);
+      const minute = index % 2 === 0 ? '00' : '30';
+      const period = hour >= 12 ? 'PM' : 'AM';
+      const displayHour = hour % 12 || 12;
+      return {
+        value: `${String(hour).padStart(2, '0')}:${minute}`,
+        label: `${displayHour}:${minute} ${period}`,
+      };
+    });
+
+    const KNOWN_EVENT_OPTIONS = [
+      { id: 'food-fair-04292026', event: 'Food Fair', date: '2026-04-29', eventTime: '10:00' },
+      { id: 'village-night-04292026', event: 'Village Night', date: '2026-04-29', eventTime: '19:00' },
+      { id: 'jouvert-04302026', event: 'J’ouvert', date: '2026-04-30', eventTime: '05:30' },
+      { id: 'village-night-04302026', event: 'Village Night', date: '2026-04-30', eventTime: '19:00' },
+      { id: 'childrens-parade-05012026', event: 'Children’s Parade', date: '2026-05-01', eventTime: '10:00' },
+      { id: 'village-night-05012026', event: 'Village Night', date: '2026-05-01', eventTime: '19:00' },
+      { id: 'adults-parade-05022026', event: 'Adult’s Parade', date: '2026-05-02', eventTime: '10:00' },
+      { id: 'village-night-05022026', event: 'Village Night', date: '2026-05-02', eventTime: '19:00' },
+      { id: 'fireworks-05022026', event: 'Fireworks', date: '2026-05-02', eventTime: '21:00' },
+    ];
+
+    const DESTINATIONS = [
+      'Margaritaville Vacation Club',
+      'The Ritz-Carlton, St. Thomas',
+      "Marriott Frenchman's Reef",
+      'Point Pleasant Resort',
+      'Secret Harbour Beach Resort',
+      'Bolongo Bay Beach Resort',
+      'Emerald Beach Resort',
+      'Red Hook Ferry Terminal',
+      'Charlotte Amalie',
+      'Yacht Haven Grande',
+      'Other',
+    ];
+
+    const state = {
+      activeKnownEvents: [],
+      customRequests: [],
+      showSummary: false,
+      reviewedSummary: false,
+      depositAcknowledged: false,
+      isSubmitting: false,
+    };
+
+    const el = {
+      clientName: document.getElementById('clientName'),
+      phone: document.getElementById('phone'),
+      email: document.getElementById('email'),
+      knownEventSelect: document.getElementById('knownEventSelect'),
+      knownEventsContainer: document.getElementById('knownEventsContainer'),
+      arrivalDate: document.getElementById('arrivalDate'),
+      departureDate: document.getElementById('departureDate'),
+      flightNumber: document.getElementById('flightNumber'),
+      arrivalTime: document.getElementById('arrivalTime'),
+      arrivalDestination: document.getElementById('arrivalDestination'),
+      arrivalDestinationOtherWrap: document.getElementById('arrivalDestinationOtherWrap'),
+      arrivalDestinationOther: document.getElementById('arrivalDestinationOther'),
+      addAdditionalEventBtn: document.getElementById('addAdditionalEventBtn'),
+      customEventsContainer: document.getElementById('customEventsContainer'),
+      toggleSummaryBtn: document.getElementById('toggleSummaryBtn'),
+      copySummaryBtn: document.getElementById('copySummaryBtn'),
+      summaryNotice: document.getElementById('summaryNotice'),
+      submitBtn: document.getElementById('submitBtn'),
+      depositAcknowledged: document.getElementById('depositAcknowledged'),
+      resetBtn: document.getElementById('resetBtn'),
+      submissionState: document.getElementById('submissionState'),
+      contactMini: document.getElementById('contactMini'),
+      travelMini: document.getElementById('travelMini'),
+      summaryWrap: document.getElementById('summaryWrap'),
+      summaryBox: document.getElementById('summaryBox'),
+      reviewedSummary: document.getElementById('reviewedSummary'),
+    };
+
+    function formatPhoneNumber(value) {
+      const digits = value.replace(/\D/g, '').slice(0, 10);
+      if (digits.length < 4) return digits;
+      if (digits.length < 7) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+      return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+    }
+
+    function formatDateDisplay(value) {
+      if (!value) return '';
+      const [year, month, day] = value.split('-');
+      if (!year || !month || !day) return value;
+      return `${month}/${day}/${year}`;
+    }
+
+    function formatTimeDisplay(value) {
+      if (!value) return '';
+      const [hours, minutes] = value.split(':');
+      if (hours == null || minutes == null) return value;
+      const hourNumber = Number(hours);
+      if (Number.isNaN(hourNumber)) return value;
+      const suffix = hourNumber >= 12 ? 'PM' : 'AM';
+      const displayHour = hourNumber % 12 || 12;
+      return `${displayHour}:${minutes} ${suffix}`;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function uid() {
+      return `${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+    }
+
+    function setSubmissionState(type, message) {
+      if (!type || !message) {
+        el.submissionState.className = 'notice hidden';
+        el.submissionState.textContent = '';
+        return;
+      }
+      el.submissionState.className = `notice ${type}`;
+      el.submissionState.textContent = message;
+    }
+
+    function invalidateReview() {
+      state.reviewedSummary = false;
+      el.reviewedSummary.checked = false;
+      setSubmissionState();
+      renderSummaryState();
+    }
+
+    function buildSelectOptions(selectEl, options, placeholder) {
+      const items = [`<option value="">${escapeHtml(placeholder)}</option>`]
+        .concat(options.map((item) => `<option value="${escapeHtml(item.value || item)}">${escapeHtml(item.label || item)}</option>`));
+      selectEl.innerHTML = items.join('');
+    }
+
+    function renderKnownEventSelect() {
+      const activeIds = new Set(state.activeKnownEvents.map((event) => event.id));
+      const options = KNOWN_EVENT_OPTIONS
+        .filter((event) => !activeIds.has(event.id))
+        .map((event) => ({
+          value: event.id,
+          label: `${event.event} — ${formatDateDisplay(event.date)} — ${formatTimeDisplay(event.eventTime)}`,
+        }));
+      buildSelectOptions(el.knownEventSelect, options, 'Choose an event');
+    }
+
+    function addKnownEvent(eventId) {
+      if (!eventId) return;
+      const match = KNOWN_EVENT_OPTIONS.find((event) => event.id === eventId);
+      if (!match || state.activeKnownEvents.some((event) => event.id === eventId)) return;
+      state.activeKnownEvents.push({ ...match, destination: '', requestedWindow: '', notes: '' });
+      el.knownEventSelect.value = '';
+      invalidateReview();
+      renderKnownEventSelect();
+      renderKnownEvents();
+    }
+
+    function updateKnownEvent(id, field, value) {
+      const item = state.activeKnownEvents.find((event) => event.id === id);
+      if (!item) return;
+      item[field] = value;
+      invalidateReview();
+      renderKnownEvents();
+    }
+
+    function removeKnownEvent(id) {
+      state.activeKnownEvents = state.activeKnownEvents.filter((event) => event.id !== id);
+      invalidateReview();
+      renderKnownEventSelect();
+      renderKnownEvents();
+    }
+
+    function addCustomRequest() {
+      state.customRequests.push({
+        uid: uid(),
+        event: '',
+        date: '2026-04-29',
+        eventTime: '',
+        destination: '',
+        requestedWindow: '',
+        notes: '',
+      });
+      invalidateReview();
+      renderCustomEvents();
+    }
+
+    function updateCustomRequest(id, field, value) {
+      const item = state.customRequests.find((request) => request.uid === id);
+      if (!item) return;
+      item[field] = value;
+      invalidateReview();
+      renderCustomEvents();
+    }
+
+    function removeCustomRequest(id) {
+      state.customRequests = state.customRequests.filter((request) => request.uid !== id);
+      invalidateReview();
+      renderCustomEvents();
+    }
+
+    function renderKnownEvents() {
+      if (!state.activeKnownEvents.length) {
+        el.knownEventsContainer.className = 'empty';
+        el.knownEventsContainer.textContent = 'No events added yet. Select one from the dropdown.';
+        renderSummary();
+        return;
+      }
+
+      el.knownEventsContainer.className = '';
+      el.knownEventsContainer.innerHTML = state.activeKnownEvents.map((event) => `
+        <div class="event-card">
+          <div class="event-top">
+            <div>
+              <div class="event-title">${escapeHtml(event.event)}</div>
+              <div class="event-meta">
+                <span>📅 ${escapeHtml(formatDateDisplay(event.date))}</span>
+                <span>🕒 ${escapeHtml(formatTimeDisplay(event.eventTime))}</span>
+              </div>
+            </div>
+            <button class="danger-btn" type="button" data-remove-known="${escapeHtml(event.id)}">✕</button>
+          </div>
+          <div class="grid-3">
+            <div class="field">
+              <label>Destination</label>
+              <input type="text" data-known-field="destination" data-known-id="${escapeHtml(event.id)}" value="${escapeHtml(event.destination)}" placeholder="Village, parade route, restaurant, or venue" />
+            </div>
+            <div class="field">
+              <label>Requested Time Window</label>
+              <input type="text" data-known-field="requestedWindow" data-known-id="${escapeHtml(event.id)}" value="${escapeHtml(event.requestedWindow)}" placeholder="Example: 6:30 PM pickup or 6:30–7:00 PM" />
+            </div>
+            <div class="field">
+              <label>Notes</label>
+              <textarea data-known-field="notes" data-known-id="${escapeHtml(event.id)}" rows="2" placeholder="Meeting point, party size, route note, or any special instruction">${escapeHtml(event.notes)}</textarea>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      el.knownEventsContainer.querySelectorAll('[data-remove-known]').forEach((button) => {
+        button.addEventListener('click', () => removeKnownEvent(button.dataset.removeKnown));
+      });
+
+      el.knownEventsContainer.querySelectorAll('[data-known-field]').forEach((input) => {
+        input.addEventListener('input', () => updateKnownEvent(input.dataset.knownId, input.dataset.knownField, input.value));
+      });
+
+      renderSummary();
+    }
+
+    function renderCustomEvents() {
+      if (!state.customRequests.length) {
+        el.customEventsContainer.className = 'empty';
+        el.customEventsContainer.textContent = 'No additional events added yet. Use the button above to add one.';
+        renderSummary();
+        return;
+      }
+
+      el.customEventsContainer.className = '';
+      el.customEventsContainer.innerHTML = state.customRequests.map((request) => `
+        <div class="event-card">
+          <div class="event-top">
+            <div>
+              <div class="event-title">${escapeHtml(request.event || 'Additional Event')}</div>
+              <div class="event-meta">
+                <span>📅 ${escapeHtml(request.date ? formatDateDisplay(request.date) : 'No date')}</span>
+                <span>🕒 ${escapeHtml(request.eventTime ? formatTimeDisplay(request.eventTime) : 'No event time')}</span>
+              </div>
+            </div>
+            <button class="danger-btn" type="button" data-remove-custom="${escapeHtml(request.uid)}">✕</button>
+          </div>
+          <div class="grid-2">
+            <div class="field">
+              <label>Event Name</label>
+              <input type="text" data-custom-field="event" data-custom-id="${escapeHtml(request.uid)}" value="${escapeHtml(request.event)}" placeholder="Enter additional event" />
+            </div>
+            <div class="field">
+              <label>Date</label>
+              <input type="date" data-custom-field="date" data-custom-id="${escapeHtml(request.uid)}" value="${escapeHtml(request.date)}" />
+            </div>
+            <div class="field">
+              <label>Event Time</label>
+              <select data-custom-field="eventTime" data-custom-id="${escapeHtml(request.uid)}">${buildTimeOptionsMarkup(request.eventTime, 'Select event time')}</select>
+            </div>
+            <div class="field">
+              <label>Destination</label>
+              <input type="text" data-custom-field="destination" data-custom-id="${escapeHtml(request.uid)}" value="${escapeHtml(request.destination)}" placeholder="Restaurant, venue, marina, or address" />
+            </div>
+            <div class="field">
+              <label>Requested Time Window</label>
+              <input type="text" data-custom-field="requestedWindow" data-custom-id="${escapeHtml(request.uid)}" value="${escapeHtml(request.requestedWindow)}" placeholder="Example: 8:00 PM pickup or 8:00–8:30 PM" />
+            </div>
+            <div class="field" style="grid-column: 1 / -1;">
+              <label>Notes</label>
+              <textarea data-custom-field="notes" data-custom-id="${escapeHtml(request.uid)}" rows="2" placeholder="Meeting point, route note, party size, or any special instruction">${escapeHtml(request.notes)}</textarea>
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      el.customEventsContainer.querySelectorAll('[data-remove-custom]').forEach((button) => {
+        button.addEventListener('click', () => removeCustomRequest(button.dataset.removeCustom));
+      });
+
+      el.customEventsContainer.querySelectorAll('[data-custom-field]').forEach((input) => {
+        input.addEventListener('input', () => updateCustomRequest(input.dataset.customId, input.dataset.customField, input.value));
+        input.addEventListener('change', () => updateCustomRequest(input.dataset.customId, input.dataset.customField, input.value));
+      });
+
+      renderSummary();
+    }
+
+    function buildTimeOptionsMarkup(selected, placeholder) {
+      return [`<option value="">${escapeHtml(placeholder)}</option>`]
+        .concat(TIME_OPTIONS.map((time) => `<option value="${time.value}" ${selected === time.value ? 'selected' : ''}>${escapeHtml(time.label)}</option>`))
+        .join('');
+    }
+
+    function getArrivalDestinationValue() {
+      return el.arrivalDestination.value === 'Other' ? el.arrivalDestinationOther.value.trim() : el.arrivalDestination.value.trim();
+    }
+
+    function buildSummaryText() {
+      const knownEventLines = state.activeKnownEvents.map((event) =>
+        `${event.event} — ${formatDateDisplay(event.date)} — Event Time: ${formatTimeDisplay(event.eventTime)}${event.destination ? ` — Destination: ${event.destination}` : ''}${event.requestedWindow ? ` — Requested Time Window: ${event.requestedWindow}` : ''}${event.notes ? ` — Notes: ${event.notes}` : ''}`
+      );
+
+      const customLines = state.customRequests
+        .filter((request) => request.event || request.date || request.eventTime || request.destination || request.requestedWindow || request.notes)
+        .map((request) =>
+          `${request.event || 'Additional Event'}${request.date ? ` — ${formatDateDisplay(request.date)}` : ''}${request.eventTime ? ` — Event Time: ${formatTimeDisplay(request.eventTime)}` : ''}${request.destination ? ` — Destination: ${request.destination}` : ''}${request.requestedWindow ? ` — Requested Time Window: ${request.requestedWindow}` : ''}${request.notes ? ` — Notes: ${request.notes}` : ''}`
+        );
+
+      return [
+        'Carnival Service Planning Form',
+        '',
+        `Name: ${el.clientName.value.trim()}`,
+        `Phone: ${el.phone.value.trim()}`,
+        `Email: ${el.email.value.trim()}`,
+        '',
+        'Known Carnival Events:',
+        ...(knownEventLines.length ? knownEventLines : ['None added yet.']),
+        '',
+        'Additional Events:',
+        ...(customLines.length ? customLines : ['None added yet.']),
+        '',
+        'Travel Details:',
+        `Arrival Date: ${formatDateDisplay(el.arrivalDate.value) || ''}`,
+        `Flight Number: ${el.flightNumber.value.trim()}`,
+        `Arrival Time: ${formatTimeDisplay(el.arrivalTime.value) || ''}`,
+        `Arrival Destination: ${getArrivalDestinationValue()}`,
+        `Departure Date: ${formatDateDisplay(el.departureDate.value) || ''}`,
+        '',
+        `Package Total: $${PACKAGE_TOTAL}`,
+        `Deposit Due: $${DEPOSIT_AMOUNT}`,
+      ].join('\n');
+    }
+
+    function renderSummary() {
+      el.summaryBox.textContent = buildSummaryText();
+      el.contactMini.innerHTML = `
+        <div>Phone: ${escapeHtml(el.phone.value.trim() || 'No phone entered')}</div>
+        <div>Email: ${escapeHtml(el.email.value.trim() || 'No email entered')}</div>
+      `;
+      el.travelMini.innerHTML = `
+        <div>Arrival Date: ${escapeHtml(el.arrivalDate.value ? formatDateDisplay(el.arrivalDate.value) : 'No arrival date')}</div>
+        <div>Departure Date: ${escapeHtml(el.departureDate.value ? formatDateDisplay(el.departureDate.value) : 'No departure date')}</div>
+        <div>Arrival Time: ${escapeHtml(el.arrivalTime.value ? formatTimeDisplay(el.arrivalTime.value) : 'No arrival time')}</div>
+        <div>Flight Number: ${escapeHtml(el.flightNumber.value.trim() || 'No flight number')}</div>
+        <div>Arrival Destination: ${escapeHtml(getArrivalDestinationValue() || 'No destination')}</div>
+      `;
+    }
+
+    function renderSummaryState() {
+      el.summaryWrap.classList.toggle('hidden', !state.showSummary);
+      el.toggleSummaryBtn.textContent = state.showSummary ? 'Hide Summary' : 'Show Summary';
+      el.submitBtn.disabled = state.isSubmitting || !state.reviewedSummary || !state.depositAcknowledged;
+      el.submitBtn.textContent = state.isSubmitting ? 'Sending...' : 'Return Planning Form';
+
+      if (!state.showSummary && !state.reviewedSummary) {
+        el.summaryNotice.className = 'notice';
+        el.summaryNotice.textContent = 'Open the summary, review it, and check the confirmation box to unlock return.';
+      } else if (state.showSummary && !state.reviewedSummary) {
+        el.summaryNotice.className = 'notice';
+        el.summaryNotice.textContent = 'Check the review box under the summary to unlock return.';
+      } else {
+        el.summaryNotice.className = 'notice success';
+        el.summaryNotice.textContent = 'Summary reviewed. Return is unlocked once the deposit terms are acknowledged.';
+      }
+    }
+
+    function validateEmail(value) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    }
+
+    function validatePhone(value) {
+      return /^\d{3}-\d{3}-\d{4}$/.test(value);
+    }
+
+    function validateForm() {
+      const name = el.clientName.value.trim();
+      const phone = el.phone.value.trim();
+      const email = el.email.value.trim();
+
+      if (!name) {
+        setSubmissionState('error', 'Name is required.');
+        return false;
+      }
+      if (!validatePhone(phone)) {
+        setSubmissionState('error', 'Enter phone as 000-000-0000.');
+        return false;
+      }
+      if (!validateEmail(email)) {
+        setSubmissionState('error', 'Enter a valid email address.');
+        return false;
+      }
+      if (state.activeKnownEvents.length + state.customRequests.length === 0) {
+        setSubmissionState('error', 'Add at least one Carnival or additional event before returning the planning form.');
+        return false;
+      }
+      if (!state.reviewedSummary) {
+        setSubmissionState('error', 'Review the summary and confirm it before returning the planning form.');
+        return false;
+      }
+      if (!state.depositAcknowledged) {
+        setSubmissionState('error', 'Acknowledge the deposit terms before returning the planning form.');
+        return false;
+      }
+      return true;
+    }
+
+    async function copySummary() {
+      try {
+        await navigator.clipboard.writeText(buildSummaryText());
+        setSubmissionState('success', 'Summary copied.');
+      } catch {
+        setSubmissionState('error', 'Copy failed.');
+      }
+    }
+
+    async function submitForm() {
+      setSubmissionState();
+      if (!validateForm()) return;
+
+      state.isSubmitting = true;
+      renderSummaryState();
+
+      const payload = new FormData();
+      payload.append('client_name', el.clientName.value.trim());
+      payload.append('phone', el.phone.value.trim());
+      payload.append('email', el.email.value.trim());
+      payload.append('arrival_date', el.arrivalDate.value);
+      payload.append('flight_number', el.flightNumber.value.trim());
+      payload.append('arrival_time', el.arrivalTime.value);
+      payload.append('departure_date', el.departureDate.value);
+      payload.append('arrival_destination', getArrivalDestinationValue());
+      payload.append('known_events_json', JSON.stringify(state.activeKnownEvents));
+      payload.append('additional_events_json', JSON.stringify(state.customRequests));
+      payload.append('summary', buildSummaryText());
+      payload.append('_subject', `Carnival Planning Form — ${el.clientName.value.trim()}`);
+      payload.append('_replyto', el.email.value.trim());
+
+      try {
+        const response = await fetch(FORMSPREE_ENDPOINT, {
+          method: 'POST',
+          body: payload,
+          headers: { Accept: 'application/json' }
+        });
+        if (!response.ok) throw new Error('Submission failed');
+        resetForm();
+        setSubmissionState('success', 'Your planning form has been sent. We will review it and follow up directly.');
+      } catch {
+        setSubmissionState('error', 'Unable to send your planning form right now. Please try again or contact us directly.');
+      } finally {
+        state.isSubmitting = false;
+        renderSummaryState();
+      }
+    }
+
+    function resetForm() {
+      el.clientName.value = '';
+      el.phone.value = '';
+      el.email.value = '';
+      el.arrivalDate.value = '2026-04-29';
+      el.departureDate.value = '2026-05-04';
+      el.flightNumber.value = '';
+      el.arrivalTime.value = '';
+      el.arrivalDestination.value = '';
+      el.arrivalDestinationOther.value = '';
+      el.arrivalDestinationOtherWrap.classList.add('hidden');
+      state.activeKnownEvents = [];
+      state.customRequests = [];
+      state.showSummary = false;
+      state.reviewedSummary = false;
+      state.depositAcknowledged = false;
+      el.reviewedSummary.checked = false;
+      el.depositAcknowledged.checked = false;
+      renderKnownEventSelect();
+      renderKnownEvents();
+      renderCustomEvents();
+      renderSummary();
+      renderSummaryState();
+    }
+
+    function wireBaseInputs() {
+      el.phone.addEventListener('input', () => {
+        el.phone.value = formatPhoneNumber(el.phone.value);
+        invalidateReview();
+        renderSummary();
+      });
+
+      [el.clientName, el.email, el.arrivalDate, el.departureDate, el.flightNumber, el.arrivalTime, el.arrivalDestination, el.arrivalDestinationOther].forEach((node) => {
+        node.addEventListener('input', () => {
+          if (node === el.flightNumber) el.flightNumber.value = el.flightNumber.value.toUpperCase();
+          if (node === el.arrivalDestination) {
+            el.arrivalDestinationOtherWrap.classList.toggle('hidden', el.arrivalDestination.value !== 'Other');
+            if (el.arrivalDestination.value !== 'Other') el.arrivalDestinationOther.value = '';
+          }
+          invalidateReview();
+          renderSummary();
+        });
+        node.addEventListener('change', () => {
+          if (node === el.arrivalDestination) {
+            el.arrivalDestinationOtherWrap.classList.toggle('hidden', el.arrivalDestination.value !== 'Other');
+            if (el.arrivalDestination.value !== 'Other') el.arrivalDestinationOther.value = '';
+          }
+          invalidateReview();
+          renderSummary();
+        });
+      });
+
+      el.knownEventSelect.addEventListener('change', (e) => addKnownEvent(e.target.value));
+      el.addAdditionalEventBtn.addEventListener('click', addCustomRequest);
+      el.toggleSummaryBtn.addEventListener('click', () => {
+        state.showSummary = !state.showSummary;
+        renderSummary();
+        renderSummaryState();
+        setSubmissionState();
+      });
+      el.copySummaryBtn.addEventListener('click', copySummary);
+      el.reviewedSummary.addEventListener('change', () => {
+        state.reviewedSummary = el.reviewedSummary.checked;
+        setSubmissionState();
+        renderSummaryState();
+      });
+      el.depositAcknowledged.addEventListener('change', () => {
+        state.depositAcknowledged = el.depositAcknowledged.checked;
+        setSubmissionState();
+        renderSummaryState();
+      });
+      el.submitBtn.addEventListener('click', submitForm);
+      el.resetBtn.addEventListener('click', () => {
+        setSubmissionState();
+        resetForm();
+      });
+    }
+
+    function init() {
+      buildSelectOptions(el.arrivalTime, TIME_OPTIONS, 'Select arrival time');
+      buildSelectOptions(el.arrivalDestination, DESTINATIONS, 'Choose destination');
+      renderKnownEventSelect();
+      renderKnownEvents();
+      renderCustomEvents();
+      renderSummary();
+      renderSummaryState();
+      wireBaseInputs();
+    }
+
+    init();
+  </script>
+</body>
+</html>

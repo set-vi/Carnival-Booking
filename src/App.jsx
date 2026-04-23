@@ -153,6 +153,15 @@ function formatDateDisplay(value) {
   return `${month}/${day}/${year}`;
 }
 
+function formatDateWithDayDisplay(value) {
+  if (!value) return "";
+  const baseDate = formatDateDisplay(value);
+  const parsedDate = new Date(`${value}T12:00:00`);
+  if (Number.isNaN(parsedDate.getTime())) return baseDate;
+  const weekday = parsedDate.toLocaleDateString("en-US", { weekday: "short" });
+  return `${weekday} ${baseDate}`;
+}
+
 function formatTimeDisplay(value) {
   if (!value) return "";
   const [hours, minutes] = value.split(":");
@@ -191,13 +200,13 @@ function getPassengerCapacityState(passengerCountValue) {
   if (passengerCount > BASE_PASSENGER_COUNT) {
     return {
       className: "border-emerald-400/30 bg-emerald-500/10 text-emerald-100",
-      message: `${passengerCount} passengers still fit in the same vehicle. Up to ${VEHICLE_CAPACITY} total are allowed.`,
+      message: `${passengerCount} passengers selected. Additional passengers are allowed, up to a maximum total of ${VEHICLE_CAPACITY} passengers.`,
     };
   }
 
   return {
     className: "border-zinc-800 bg-black/30 text-zinc-300",
-    message: `Base plan is set for ${BASE_PASSENGER_COUNT} passengers. Additional guests may be added up to ${VEHICLE_CAPACITY} total.`,
+    message: `Additional passengers are allowed, up to a maximum total of ${VEHICLE_CAPACITY} passengers.`,
   };
 }
 
@@ -243,8 +252,8 @@ function runSelfChecks() {
     }) === false,
     "Incomplete custom request should fail"
   );
-  console.assert(getPassengerCapacityState("2").message.includes("Base plan"), "Base passenger state failed");
-  console.assert(getPassengerCapacityState("5").message.includes("still fit"), "Mid passenger state failed");
+  console.assert(getPassengerCapacityState("2").message.includes("maximum total"), "Base passenger state failed");
+  console.assert(getPassengerCapacityState("5").message.includes("maximum total"), "Mid passenger state failed");
   console.assert(getPassengerCapacityState("6").message.includes("full vehicle capacity"), "Full passenger state failed");
   console.assert(getPassengerCapacityState("7").message.includes("second vehicle"), "Overflow passenger state failed");
 }
@@ -307,36 +316,6 @@ function OfferPanel() {
   );
 }
 
-function KnownEventCard({ event, onChange }) {
-  return (
-    <div className="rounded-[24px] border border-zinc-800 bg-zinc-950/80 p-4">
-      <div className="mb-4">
-        <div className="text-lg font-semibold tracking-tight">{event.event}</div>
-        <div className="mt-1 flex flex-wrap gap-3 text-sm text-zinc-400">
-          <span className="inline-flex items-center gap-1.5">
-            <CalendarDays className="h-4 w-4" /> {formatDateDisplay(event.date)}
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <Clock3 className="h-4 w-4" /> {formatTimeDisplay(event.eventTime)}
-          </span>
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="md:col-span-2">
-          <FieldLabel>Notes</FieldLabel>
-          <Textarea
-            rows={2}
-            value={event.notes}
-            onChange={(e) => onChange(event.id, "notes", e.target.value)}
-            placeholder="Any special instruction"
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function AdditionalEventCard({ request, onChange, onRemove }) {
   return (
     <div className="rounded-[24px] border border-zinc-800 bg-zinc-950/80 p-4">
@@ -345,7 +324,7 @@ function AdditionalEventCard({ request, onChange, onRemove }) {
           <div className="text-lg font-semibold tracking-tight">{request.event || "Additional Event"}</div>
           <div className="mt-1 flex flex-wrap gap-3 text-sm text-zinc-400">
             <span className="inline-flex items-center gap-1.5">
-              <CalendarDays className="h-4 w-4" /> {request.date ? formatDateDisplay(request.date) : "No date"}
+              <CalendarDays className="h-4 w-4" /> {request.date ? formatDateWithDayDisplay(request.date) : "No date"}
             </span>
             <span className="inline-flex items-center gap-1.5">
               <Clock3 className="h-4 w-4" /> {request.eventTime ? formatTimeDisplay(request.eventTime) : "No event time"}
@@ -481,14 +460,9 @@ export default function App() {
         return current.filter((event) => event.id !== eventId);
       }
 
-      return [...current, { ...match, notes: "" }];
+      return [...current, match];
     });
 
-    invalidateReview();
-  };
-
-  const updateKnownEvent = (id, field, value) => {
-    setActiveKnownEvents((current) => current.map((event) => (event.id === id ? { ...event, [field]: value } : event)));
     invalidateReview();
   };
 
@@ -546,12 +520,12 @@ export default function App() {
 
   const summaryText = useMemo(() => {
     const knownEventLines = activeKnownEvents.map(
-      (event) => `${event.event} — ${formatDateDisplay(event.date)} — Event Time: ${formatTimeDisplay(event.eventTime)}${event.notes ? ` — Notes: ${event.notes}` : ""}`
+      (event) => `${event.event} — ${formatDateWithDayDisplay(event.date)} — Event Time: ${formatTimeDisplay(event.eventTime)}`
     );
 
     const customLines = meaningfulCustomRequests.map(
       (request) =>
-        `${request.event || "Additional Event"}${request.date ? ` — ${formatDateDisplay(request.date)}` : ""}${request.eventTime ? ` — Event Time: ${formatTimeDisplay(request.eventTime)}` : ""}${request.destination ? ` — Destination: ${request.destination}` : ""}${request.requestedWindow ? ` — Requested Time Window: ${request.requestedWindow}` : ""}${request.notes ? ` — Notes: ${request.notes}` : ""}`
+        `${request.event || "Additional Event"}${request.date ? ` — ${formatDateWithDayDisplay(request.date)}` : ""}${request.eventTime ? ` — Event Time: ${formatTimeDisplay(request.eventTime)}` : ""}${request.destination ? ` — Destination: ${request.destination}` : ""}${request.requestedWindow ? ` — Requested Time Window: ${request.requestedWindow}` : ""}${request.notes ? ` — Notes: ${request.notes}` : ""}`
     );
 
     return [
@@ -561,11 +535,11 @@ export default function App() {
       `Phone: ${contact.phone || ""}`,
       `Email: ${contact.email || ""}`,
       "",
-      `Arrival Date: ${formatDateDisplay(arrival.arrivalDate) || ""}`,
+      `Arrival Date: ${formatDateWithDayDisplay(arrival.arrivalDate) || ""}`,
       `Arrival Flight Number: ${arrival.flightNumber || ""}`,
       `Arrival Time: ${formatTimeDisplay(arrival.arrivalTime) || ""}`,
       `Arrival Destination: ${getResolvedArrivalDestination(arrival) || ""}`,
-      `Departure Date: ${formatDateDisplay(arrival.departureDate) || ""}`,
+      `Departure Date: ${formatDateWithDayDisplay(arrival.departureDate) || ""}`,
       `Departure Flight Number: ${arrival.departureFlightNumber || ""}`,
       `Departure Time: ${formatTimeDisplay(arrival.departureTime) || ""}`,
       `Passengers: ${arrival.passengerCount || ""}`,
@@ -917,7 +891,7 @@ export default function App() {
                       <div>
                         <div className="text-base font-semibold text-white">{event.event}</div>
                         <div className="mt-1 flex flex-wrap gap-3 text-sm text-zinc-400">
-                          <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-4 w-4" /> {formatDateDisplay(event.date)}</span>
+                          <span className="inline-flex items-center gap-1.5"><CalendarDays className="h-4 w-4" /> {formatDateWithDayDisplay(event.date)}</span>
                           <span className="inline-flex items-center gap-1.5"><Clock3 className="h-4 w-4" /> {formatTimeDisplay(event.eventTime)}</span>
                         </div>
                       </div>
@@ -925,22 +899,19 @@ export default function App() {
                   );
                 })}
               </div>
-
-              {activeKnownEvents.length > 0 && (
-                <div className="mt-5 space-y-4">
-                  {activeKnownEvents.map((event) => (
-                    <KnownEventCard key={event.id} event={event} onChange={updateKnownEvent} />
-                  ))}
-                </div>
-              )}
             </div>
 
             <div className="rounded-[28px] border border-zinc-800 bg-zinc-900/60 p-5 shadow-xl shadow-black/30">
               <SectionHeader icon={CarFront} title="Additional Events" subtitle="Add dinners, private outings, or other events that are not listed above." />
+
               <div className="mb-4 flex flex-wrap gap-3">
                 <button type="button" onClick={addCustomRequest} className="rounded-2xl border border-amber-400/40 bg-amber-400/10 px-4 py-2 text-sm font-medium text-amber-200 transition hover:bg-amber-400/20">
                   <span className="inline-flex items-center gap-2"><Plus className="h-4 w-4" /> Add Additional Event</span>
                 </button>
+              </div>
+
+              <div className="mb-4 rounded-[24px] border border-zinc-800 bg-zinc-950/70 p-4 text-sm text-zinc-400">
+                Additional events during the service period are covered and will be discussed and coordinated as they arise.
               </div>
 
               {incompleteCustomRequests.length > 0 && (

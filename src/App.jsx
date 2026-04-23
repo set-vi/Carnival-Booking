@@ -13,9 +13,8 @@ import {
 
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/meoazyoy";
 const DEFAULT_DATE = "2026-04-29";
-const DEFAULT_DEPARTURE_DATE = "2026-05-04";
-const PACKAGE_TOTAL = "3,500.00";
-const DEPOSIT_AMOUNT = "1,750.00";
+const PACKAGE_TOTAL = "3,300.00";
+const DEPOSIT_AMOUNT = "1,650.00";
 const BASE_PASSENGER_COUNT = 2;
 const VEHICLE_CAPACITY = 6;
 
@@ -176,44 +175,28 @@ function formatTimeDisplay(value) {
 function getPassengerCapacityState(passengerCountValue) {
   const passengerCount = Number(passengerCountValue || 0);
 
-  if (!passengerCount) {
-    return {
-      className: "border-zinc-800 bg-black/30 text-zinc-300",
-      message: `Base plan starts at ${BASE_PASSENGER_COUNT} passengers. The vehicle seats up to ${VEHICLE_CAPACITY} total passengers.`,
-    };
-  }
-
   if (passengerCount > VEHICLE_CAPACITY) {
     return {
-      className: "border-amber-400/40 bg-amber-400/10 text-amber-100",
-      message: `More than ${VEHICLE_CAPACITY} passengers may require a second vehicle.`,
-    };
-  }
-
-  if (passengerCount === VEHICLE_CAPACITY) {
-    return {
-      className: "border-rose-400/30 bg-rose-500/10 text-rose-100",
-      message: `You are at full vehicle capacity: ${VEHICLE_CAPACITY} passengers total.`,
+      className: "border-red-500/30 bg-red-500/10 text-red-200",
+      message: `This vehicle accommodates up to ${VEHICLE_CAPACITY} total passengers.`,
     };
   }
 
   if (passengerCount > BASE_PASSENGER_COUNT) {
     return {
-      className: "border-emerald-400/30 bg-emerald-500/10 text-emerald-100",
-      message: `${passengerCount} passengers selected. Additional passengers are allowed, up to a maximum total of ${VEHICLE_CAPACITY} passengers.`,
+      className: "border-amber-400/40 bg-amber-400/10 text-amber-100",
+      message: `Additional passengers are allowed up to the ${VEHICLE_CAPACITY}-passenger seating capacity.`,
     };
   }
 
-  return {
-    className: "border-zinc-800 bg-black/30 text-zinc-300",
-    message: `Additional passengers are allowed, up to a maximum total of ${VEHICLE_CAPACITY} passengers.`,
-  };
+  return null;
 }
 
 function runSelfChecks() {
   console.assert(formatPhoneNumber("3406428686") === "340-642-8686", "Phone formatting failed");
   console.assert(formatPhoneNumber("340") === "340", "Short phone formatting failed");
   console.assert(formatPhoneNumber("340642") === "340-642", "Mid phone formatting failed");
+  console.assert(formatPhoneNumber("340642868699") === "340-642-8686", "Long phone should be trimmed to 10 digits");
   console.assert(isValidPhoneNumber("340-642-8686") === true, "Phone validation failed");
   console.assert(isValidPhoneNumber("3406428686") === false, "Phone validation should fail without dashes");
   console.assert(isValidPhoneNumber("340-642-868") === false, "Short phone should fail");
@@ -231,6 +214,10 @@ function runSelfChecks() {
     "Other destination resolution failed"
   );
   console.assert(
+    getResolvedArrivalDestination({ destination: "Red Hook Ferry Terminal", destinationOther: "Ignored" }) === "Red Hook Ferry Terminal",
+    "Named destination resolution failed"
+  );
+  console.assert(
     isCompleteCustomRequest({
       event: "Dinner",
       date: "2026-04-29",
@@ -245,6 +232,17 @@ function runSelfChecks() {
     isCompleteCustomRequest({
       event: "Dinner",
       date: "2026-04-29",
+      destination: "Charlotte Amalie",
+      eventTime: "",
+      requestedWindow: "8:00 PM pickup",
+      notes: "",
+    }) === true,
+    "Custom request with time window should pass"
+  );
+  console.assert(
+    isCompleteCustomRequest({
+      event: "Dinner",
+      date: "2026-04-29",
       destination: "",
       eventTime: "",
       requestedWindow: "",
@@ -252,10 +250,13 @@ function runSelfChecks() {
     }) === false,
     "Incomplete custom request should fail"
   );
-  console.assert(getPassengerCapacityState("2").message.includes("maximum total"), "Base passenger state failed");
-  console.assert(getPassengerCapacityState("5").message.includes("maximum total"), "Mid passenger state failed");
-  console.assert(getPassengerCapacityState("6").message.includes("full vehicle capacity"), "Full passenger state failed");
-  console.assert(getPassengerCapacityState("7").message.includes("second vehicle"), "Overflow passenger state failed");
+  console.assert(getPassengerCapacityState("2") === null, "Base passenger state failed");
+  console.assert(getPassengerCapacityState("5") === null, "Mid passenger state failed");
+  console.assert(getPassengerCapacityState("6") === null, "Full passenger state failed");
+  console.assert(
+    getPassengerCapacityState("7")?.message.includes("up to 6 total passengers"),
+    "Overflow passenger state failed"
+  );
 }
 
 function OfferPanel() {
@@ -294,15 +295,19 @@ function OfferPanel() {
               <div className="font-medium text-white">Carnival / late-hour / high-demand premium: $450</div>
               <div className="text-zinc-400">That is $75 per day × 6 days</div>
             </div>
-            <div>
-              <div className="font-medium text-white">Itinerary planning and service coordination: $200</div>
-            </div>
-            <div className="border-t border-amber-400/20 pt-3 font-semibold text-amber-300">Total: $3,500</div>
+            <div className="border-t border-amber-400/20 pt-3 font-semibold text-amber-300">Total: $3,300</div>
           </div>
         </div>
 
         <p>
           This planning form is intended to establish the baseline schedule for the proposed service dates. Final event timing, adjustments, and additional requests may change based on the client’s confirmed plans during the service period.
+        </p>
+      </div>
+
+      <div className="mt-5 rounded-[24px] border border-amber-400/30 bg-black/30 p-4 text-sm leading-6 text-zinc-300">
+        <div className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-300">Passenger Capacity</div>
+        <p className="mt-2">
+          This proposal is based on a starting count of <span className="font-semibold text-white">{BASE_PASSENGER_COUNT} passengers</span>. Additional passengers are allowed up to the vehicle’s <span className="font-semibold text-white">{VEHICLE_CAPACITY}-passenger seating capacity</span>.
         </p>
       </div>
 
@@ -397,9 +402,6 @@ export default function App() {
     arrivalTime: "",
     destination: "",
     destinationOther: "",
-    departureDate: DEFAULT_DEPARTURE_DATE,
-    departureFlightNumber: "",
-    departureTime: "",
     passengerCount: String(BASE_PASSENGER_COUNT),
     luggageDetails: "",
   });
@@ -441,7 +443,10 @@ export default function App() {
   );
 
   const addedItemsCount = activeKnownEvents.length + completeCustomRequests.length;
-  const passengerCapacityState = useMemo(() => getPassengerCapacityState(arrival.passengerCount), [arrival.passengerCount]);
+  const passengerCapacityState = useMemo(
+    () => getPassengerCapacityState(arrival.passengerCount),
+    [arrival.passengerCount]
+  );
 
   const invalidateReview = () => {
     setHasReviewedSummary(false);
@@ -483,7 +488,9 @@ export default function App() {
   };
 
   const updateCustomRequest = (id, field, value) => {
-    setCustomRequests((current) => current.map((request) => (request.id === id ? { ...request, [field]: value } : request)));
+    setCustomRequests((current) =>
+      current.map((request) => (request.id === id ? { ...request, [field]: value } : request))
+    );
     invalidateReview();
   };
 
@@ -503,9 +510,6 @@ export default function App() {
       arrivalTime: "",
       destination: "",
       destinationOther: "",
-      departureDate: DEFAULT_DEPARTURE_DATE,
-      departureFlightNumber: "",
-      departureTime: "",
       passengerCount: String(BASE_PASSENGER_COUNT),
       luggageDetails: "",
     });
@@ -538,10 +542,7 @@ export default function App() {
       `Arrival Date: ${formatDateWithDayDisplay(arrival.arrivalDate) || ""}`,
       `Arrival Flight Number: ${arrival.flightNumber || ""}`,
       `Arrival Time: ${formatTimeDisplay(arrival.arrivalTime) || ""}`,
-      `Arrival Destination: ${getResolvedArrivalDestination(arrival) || ""}`,
-      `Departure Date: ${formatDateWithDayDisplay(arrival.departureDate) || ""}`,
-      `Departure Flight Number: ${arrival.departureFlightNumber || ""}`,
-      `Departure Time: ${formatTimeDisplay(arrival.departureTime) || ""}`,
+      `Airport Drop-Off Location: ${getResolvedArrivalDestination(arrival) || ""}`,
       `Passengers: ${arrival.passengerCount || ""}`,
       `Luggage Details: ${arrival.luggageDetails || ""}`,
       "",
@@ -588,27 +589,11 @@ export default function App() {
       return false;
     }
     if (!arrival.destination.trim()) {
-      setSubmissionState({ type: "error", message: "Arrival destination is required." });
+      setSubmissionState({ type: "error", message: "Airport drop-off location is required." });
       return false;
     }
     if (arrival.destination === "Other" && !arrival.destinationOther.trim()) {
-      setSubmissionState({ type: "error", message: "Enter the custom arrival destination." });
-      return false;
-    }
-    if (!arrival.departureDate) {
-      setSubmissionState({ type: "error", message: "Departure date is required." });
-      return false;
-    }
-    if (arrival.departureDate < arrival.arrivalDate) {
-      setSubmissionState({ type: "error", message: "Departure date cannot be earlier than arrival date." });
-      return false;
-    }
-    if (!arrival.departureFlightNumber.trim()) {
-      setSubmissionState({ type: "error", message: "Departure flight number is required." });
-      return false;
-    }
-    if (!arrival.departureTime) {
-      setSubmissionState({ type: "error", message: "Departure time is required." });
+      setSubmissionState({ type: "error", message: "Enter the custom airport drop-off location." });
       return false;
     }
     if (!arrival.passengerCount || Number(arrival.passengerCount) < 1) {
@@ -618,7 +603,7 @@ export default function App() {
     if (Number(arrival.passengerCount) > VEHICLE_CAPACITY) {
       setSubmissionState({
         type: "error",
-        message: `More than ${VEHICLE_CAPACITY} passengers may require a second vehicle. Adjust the count or note the request first.`,
+        message: `Passenger count cannot exceed ${VEHICLE_CAPACITY} total passengers.`, 
       });
       return false;
     }
@@ -667,10 +652,7 @@ export default function App() {
     payload.append("arrival_date", arrival.arrivalDate);
     payload.append("arrival_flight_number", arrival.flightNumber.trim());
     payload.append("arrival_time", arrival.arrivalTime);
-    payload.append("arrival_destination", getResolvedArrivalDestination(arrival));
-    payload.append("departure_date", arrival.departureDate);
-    payload.append("departure_flight_number", arrival.departureFlightNumber.trim());
-    payload.append("departure_time", arrival.departureTime);
+    payload.append("airport_dropoff_location", getResolvedArrivalDestination(arrival));
     payload.append("passenger_count", arrival.passengerCount);
     payload.append("luggage_details", arrival.luggageDetails.trim());
     payload.append("summary", summaryText);
@@ -752,14 +734,21 @@ export default function App() {
         <div className="grid gap-6 xl:grid-cols-[1.35fr_0.85fr]">
           <div className="space-y-6">
             <div className="rounded-[28px] border border-zinc-800 bg-zinc-900/60 p-5 shadow-xl shadow-black/30">
-              <SectionHeader icon={User} title="Trip & Contact Basics" subtitle="Start here with who the plan belongs to, then anchor the travel details." />
+              <SectionHeader icon={User} title="Trip & Contact Basics" subtitle="Start here with who the plan belongs to, then anchor the airport arrival details." />
               <div className="grid gap-4 lg:grid-cols-2">
                 <div className="rounded-[24px] border border-zinc-800 bg-zinc-950/80 p-4">
                   <div className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500">Contact</div>
                   <div className="grid gap-4">
                     <div>
                       <FieldLabel>Name</FieldLabel>
-                      <Input value={clientName} onChange={(e) => { setClientName(e.target.value); invalidateReview(); }} placeholder="Enter name" />
+                      <Input
+                        value={clientName}
+                        onChange={(e) => {
+                          setClientName(e.target.value);
+                          invalidateReview();
+                        }}
+                        placeholder="Enter name"
+                      />
                     </div>
                     <div>
                       <FieldLabel>Phone</FieldLabel>
@@ -790,51 +779,68 @@ export default function App() {
                 </div>
 
                 <div className="rounded-[24px] border border-zinc-800 bg-zinc-950/80 p-4">
-                  <div className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500">Travel</div>
+                  <div className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500">Arrival</div>
                   <div className="grid gap-4 md:grid-cols-2">
                     <div>
                       <FieldLabel>Arrival Date</FieldLabel>
-                      <Input type="date" value={arrival.arrivalDate} onChange={(e) => { setArrival((current) => ({ ...current, arrivalDate: e.target.value })); invalidateReview(); }} />
-                    </div>
-                    <div>
-                      <FieldLabel>Departure Date</FieldLabel>
-                      <Input type="date" value={arrival.departureDate} min={arrival.arrivalDate || undefined} onChange={(e) => { setArrival((current) => ({ ...current, departureDate: e.target.value })); invalidateReview(); }} />
+                      <Input
+                        type="date"
+                        value={arrival.arrivalDate}
+                        onChange={(e) => {
+                          setArrival((current) => ({ ...current, arrivalDate: e.target.value }));
+                          invalidateReview();
+                        }}
+                      />
                     </div>
                     <div>
                       <FieldLabel>Arrival Flight Number</FieldLabel>
-                      <Input value={arrival.flightNumber} onChange={(e) => { setArrival((current) => ({ ...current, flightNumber: e.target.value.toUpperCase() })); invalidateReview(); }} placeholder="AA1234" />
+                      <Input
+                        value={arrival.flightNumber}
+                        onChange={(e) => {
+                          setArrival((current) => ({ ...current, flightNumber: e.target.value.toUpperCase() }));
+                          invalidateReview();
+                        }}
+                        placeholder="AA1234"
+                      />
                     </div>
                     <div>
                       <FieldLabel>Arrival Time</FieldLabel>
-                      <Select value={arrival.arrivalTime} onChange={(e) => { setArrival((current) => ({ ...current, arrivalTime: e.target.value })); invalidateReview(); }}>
+                      <Select
+                        value={arrival.arrivalTime}
+                        onChange={(e) => {
+                          setArrival((current) => ({ ...current, arrivalTime: e.target.value }));
+                          invalidateReview();
+                        }}
+                      >
                         <option value="">Select arrival time</option>
                         {TIME_OPTIONS.map((time) => (
-                          <option key={time.value} value={time.value}>{time.label}</option>
-                        ))}
-                      </Select>
-                    </div>
-                    <div>
-                      <FieldLabel>Departure Flight Number</FieldLabel>
-                      <Input value={arrival.departureFlightNumber} onChange={(e) => { setArrival((current) => ({ ...current, departureFlightNumber: e.target.value.toUpperCase() })); invalidateReview(); }} placeholder="AA5678" />
-                    </div>
-                    <div>
-                      <FieldLabel>Departure Time</FieldLabel>
-                      <Select value={arrival.departureTime} onChange={(e) => { setArrival((current) => ({ ...current, departureTime: e.target.value })); invalidateReview(); }}>
-                        <option value="">Select departure time</option>
-                        {TIME_OPTIONS.map((time) => (
-                          <option key={time.value} value={time.value}>{time.label}</option>
+                          <option key={time.value} value={time.value}>
+                            {time.label}
+                          </option>
                         ))}
                       </Select>
                     </div>
                     <div>
                       <FieldLabel>Passenger Count</FieldLabel>
-                      <Input type="number" min="1" max="6" value={arrival.passengerCount} onChange={(e) => { setArrival((current) => ({ ...current, passengerCount: e.target.value })); invalidateReview(); }} placeholder={`Base plan starts at ${BASE_PASSENGER_COUNT}`} />
-                      <div className={`mt-2 rounded-[20px] border px-3 py-3 text-xs leading-5 ${passengerCapacityState.className}`}>
-                        {passengerCapacityState.message}
-                      </div>
+                      <Input
+                        type="number"
+                        min="1"
+                        max="6"
+                        value={arrival.passengerCount}
+                        onChange={(e) => {
+                          setArrival((current) => ({ ...current, passengerCount: e.target.value }));
+                          invalidateReview();
+                        }}
+                        placeholder="Enter passenger count"
+                      />
+                      {passengerCapacityState && (
+                        <div className={`mt-2 rounded-[20px] border px-3 py-3 text-xs leading-5 ${passengerCapacityState.className}`}>
+                          {passengerCapacityState.message}
+                        </div>
+                      )}
                     </div>
                     <div className="md:col-span-2">
-                      <FieldLabel>Arrival Destination</FieldLabel>
+                      <FieldLabel>Airport Drop-Off Location</FieldLabel>
                       <Select
                         value={arrival.destination}
                         onChange={(e) => {
@@ -846,7 +852,7 @@ export default function App() {
                           invalidateReview();
                         }}
                       >
-                        <option value="">Choose destination</option>
+                        <option value="">Choose drop-off location</option>
                         <option value="Margaritaville Vacation Club">Margaritaville Vacation Club</option>
                         <option value="The Ritz-Carlton, St. Thomas">The Ritz-Carlton, St. Thomas</option>
                         <option value="Marriott Frenchman's Reef">Marriott Frenchman's Reef</option>
@@ -862,13 +868,28 @@ export default function App() {
                     </div>
                     {arrival.destination === "Other" && (
                       <div className="md:col-span-2">
-                        <FieldLabel>Enter Destination</FieldLabel>
-                        <Input value={arrival.destinationOther} onChange={(e) => { setArrival((current) => ({ ...current, destinationOther: e.target.value })); invalidateReview(); }} placeholder="Hotel, villa, marina, or address" />
+                        <FieldLabel>Enter Drop-Off Location</FieldLabel>
+                        <Input
+                          value={arrival.destinationOther}
+                          onChange={(e) => {
+                            setArrival((current) => ({ ...current, destinationOther: e.target.value }));
+                            invalidateReview();
+                          }}
+                          placeholder="Hotel, villa, marina, or address"
+                        />
                       </div>
                     )}
                     <div className="md:col-span-2">
                       <FieldLabel>Luggage Details</FieldLabel>
-                      <Textarea value={arrival.luggageDetails} onChange={(e) => { setArrival((current) => ({ ...current, luggageDetails: e.target.value })); invalidateReview(); }} rows={2} placeholder="Example: 2 carry-ons, 2 checked bags" />
+                      <Textarea
+                        value={arrival.luggageDetails}
+                        onChange={(e) => {
+                          setArrival((current) => ({ ...current, luggageDetails: e.target.value }));
+                          invalidateReview();
+                        }}
+                        rows={2}
+                        placeholder="Example: 2 carry-ons, 2 checked bags"
+                      />
                     </div>
                   </div>
                 </div>
@@ -887,7 +908,12 @@ export default function App() {
                         checked ? "border-amber-400/40 bg-amber-400/10" : "border-zinc-800 bg-zinc-950/70 hover:border-zinc-700"
                       }`}
                     >
-                      <input type="checkbox" checked={checked} onChange={() => toggleKnownEvent(event.id)} className="mt-1 h-4 w-4 rounded border-zinc-600 bg-black text-amber-400 focus:ring-amber-400" />
+                      <input
+                        type="checkbox"
+                        checked={checked}
+                        onChange={() => toggleKnownEvent(event.id)}
+                        className="mt-1 h-4 w-4 rounded border-zinc-600 bg-black text-amber-400 focus:ring-amber-400"
+                      />
                       <div>
                         <div className="text-base font-semibold text-white">{event.event}</div>
                         <div className="mt-1 flex flex-wrap gap-3 text-sm text-zinc-400">
@@ -1052,7 +1078,7 @@ export default function App() {
               <div className="mt-4 rounded-[24px] border border-zinc-800 bg-zinc-950/80 p-4 text-sm text-zinc-300">
                 <div className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500">Planning Progress</div>
                 <div className="space-y-2 text-zinc-400">
-                  <div>Travel Details Started: {arrival.arrivalTime || arrival.flightNumber || arrival.destination ? "Yes" : "No"}</div>
+                  <div>Arrival Details Started: {arrival.arrivalTime || arrival.flightNumber || arrival.destination ? "Yes" : "No"}</div>
                   <div>Known Carnival Events: {activeKnownEvents.length}</div>
                   <div>Complete Additional Events: {completeCustomRequests.length}</div>
                   <div>Additional Event Drafts: {incompleteCustomRequests.length}</div>

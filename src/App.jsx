@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   CalendarDays,
   CarFront,
@@ -9,11 +9,12 @@ import {
 } from "lucide-react";
 
 const FORMSPREE_ENDPOINT = "https://formspree.io/f/meoazyoy";
-const DEFAULT_DATE = "2026-04-29";
+const SERVICE_START_DATE = "2026-04-29";
+const SERVICE_END_DATE = "2026-05-04";
+const DEFAULT_DATE = SERVICE_START_DATE;
 const PACKAGE_TOTAL = "3,300.00";
 const DEPOSIT_AMOUNT = "1,650.00";
-const BASE_PASSENGER_COUNT = 2;
-const VEHICLE_CAPACITY = 6;
+
 const NEWLINE = String.fromCharCode(10);
 
 const DESTINATION_OPTIONS = [
@@ -136,6 +137,11 @@ function isValidEmail(value) {
   return !trimmed.includes(" ") && atIndex > 0 && dotIndex > atIndex + 1 && dotIndex < trimmed.length - 1;
 }
 
+
+function isDateWithinServiceWindow(value) {
+  return Boolean(value) && value >= SERVICE_START_DATE && value <= SERVICE_END_DATE;
+}
+
 function formatDateDisplay(value) {
   if (!value) return "";
   const [year, month, day] = value.split("-");
@@ -163,49 +169,28 @@ function formatTimeDisplay(value) {
   return `${displayHour}:${minutes} ${suffix}`;
 }
 
-function getPassengerCapacityState(passengerCountValue) {
-  const passengerCount = Number(passengerCountValue || 0);
-
-  if (passengerCount > VEHICLE_CAPACITY) {
-    return {
-      className: "border-red-500 bg-red-500/10 text-red-200",
-      message: `This vehicle accommodates up to ${VEHICLE_CAPACITY} total passengers.`,
-    };
-  }
-
-  if (passengerCount > BASE_PASSENGER_COUNT) {
-    return {
-      className: "border-amber-400 bg-amber-400/10 text-amber-100",
-      message: `Additional passengers are allowed up to the ${VEHICLE_CAPACITY}-passenger seating capacity.`,
-    };
-  }
-
-  return null;
-}
 
 function runSelfChecks() {
-  console.assert(formatPhoneNumber("3406428686") === "340-642-8686", "Phone formatting failed");
-  console.assert(formatPhoneNumber("3406428") === "340-642-8", "Partial phone formatting failed");
-  console.assert(isValidPhoneNumber("340-642-8686") === true, "Phone validation failed");
+  console.assert(formatPhoneNumber("5551234567") === "555-123-4567", "Phone formatting failed");
+  console.assert(formatPhoneNumber("5551234") === "555-123-4", "Partial phone formatting failed");
+  console.assert(isValidPhoneNumber("555-123-4567") === true, "Phone validation failed");
   console.assert(isValidPhoneNumber("3406428686") === false, "Phone validation should fail without dashes");
   console.assert(isValidEmail("name@example.com") === true, "Email validation failed");
   console.assert(isValidEmail("name example.com") === false, "Invalid email should fail");
+  console.assert(isDateWithinServiceWindow("2026-04-29") === true, "Service start date should pass");
+  console.assert(isDateWithinServiceWindow("2026-05-04") === true, "Service end date should pass");
+  console.assert(isDateWithinServiceWindow("2026-05-05") === false, "Date after service window should fail");
   console.assert(formatDateDisplay("2026-04-29") === "04/29/2026", "Date formatting failed");
   console.assert(formatDateWithDayDisplay("2026-04-29").includes("04/29/2026"), "Date with day formatting failed");
   console.assert(formatTimeDisplay("19:30") === "7:30 PM", "Time formatting failed");
-  console.assert(getPassengerCapacityState("2") === null, "Base passenger state should be null");
-  console.assert(
-    getPassengerCapacityState("5")?.message.includes("Additional passengers are allowed"),
-    "Mid passenger state failed"
-  );
-  console.assert(
-    getPassengerCapacityState("7")?.message.includes("up to 6 total passengers"),
-    "Overflow passenger state failed"
-  );
   console.assert(
     DESTINATION_OPTIONS.includes("Yacht Haven Grande") && DESTINATION_OPTIONS.includes("Other"),
     "Destination options are incomplete"
   );
+}
+
+if (typeof window !== "undefined" && typeof import.meta !== "undefined" && import.meta.env?.DEV) {
+  runSelfChecks();
 }
 
 function OfferPanel() {
@@ -217,7 +202,7 @@ function OfferPanel() {
         </div>
         <div>
           <h2 className="text-xl font-semibold tracking-tight text-white">Carnival Service Proposal</h2>
-          <p className="text-sm text-zinc-400">Package terms for the proposed service dates.</p>
+          <p className="text-sm text-zinc-400">Package terms for the service dates.</p>
         </div>
       </div>
 
@@ -226,7 +211,7 @@ function OfferPanel() {
           Private driver service for <span className="font-semibold text-white">April 29, 2026 through May 4, 2026</span> is offered at a total package rate of <span className="font-semibold text-amber-300">${PACKAGE_TOTAL}</span> for the proposed service dates.
         </p>
         <p>
-          This package includes private transportation during the proposed service dates for Carnival-related activities, including daytime and evening events, local runs, dinner transportation, event drop-offs, pickups, and standby service based on the baseline schedule and later client-confirmed adjustments during the service period.
+          This package includes private transportation for Carnival activities, local runs, event drop-offs, pickups, and standby service based on the baseline schedule and later client-confirmed adjustments during the service period.
         </p>
 
         <div className="rounded-[24px] border border-amber-400 bg-black/30 p-4 text-sm leading-6 text-zinc-300">
@@ -249,16 +234,10 @@ function OfferPanel() {
         </div>
 
         <p>
-          This planning form is intended to establish the baseline arrival and Carnival event schedule for the proposed service dates. Final timing and service adjustments can be worked out later based on the client’s confirmed plans during the service period.
+          This form sets the baseline arrival and Carnival event schedule. Final timing and service adjustments can be worked out later based on the client’s confirmed plans during the service period.
         </p>
       </div>
 
-      <div className="mt-5 rounded-[24px] border border-amber-400 bg-black/30 p-4 text-sm leading-6 text-zinc-300">
-        <div className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-300">Passenger Capacity</div>
-        <p className="mt-2">
-          This proposal includes a <span className="font-semibold text-white">six-passenger luxury van</span> for the proposed service dates, with seating for up to <span className="font-semibold text-white">six total passengers</span>.
-        </p>
-      </div>
 
       <div className="mt-5 rounded-[24px] border border-amber-400 bg-black/30 p-4 text-sm leading-6 text-zinc-300">
         <div className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-300">Deposit Terms</div>
@@ -274,7 +253,6 @@ export default function App() {
   const [clientName, setClientName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [passengerCount, setPassengerCount] = useState(String(BASE_PASSENGER_COUNT));
   const [arrivalDate, setArrivalDate] = useState(DEFAULT_DATE);
   const [arrivalTime, setArrivalTime] = useState("");
   const [flightNumber, setFlightNumber] = useState("");
@@ -286,17 +264,13 @@ export default function App() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submissionState, setSubmissionState] = useState({ type: "idle", message: "" });
 
-  useEffect(() => {
-    runSelfChecks();
-  }, []);
-
   const selectedKnownEvents = useMemo(
     () => KNOWN_EVENT_OPTIONS.filter((option) => selectedKnownEventIds.includes(option.id)),
     [selectedKnownEventIds]
   );
 
   const resolvedArrivalDestination = arrivalDestination === "Other" ? arrivalDestinationOther.trim() : arrivalDestination;
-  const passengerCapacityState = getPassengerCapacityState(passengerCount);
+  const hasSuccessfulSubmission = submissionState.type === "success";
 
   const summaryText = useMemo(() => {
     const lines = [
@@ -305,7 +279,6 @@ export default function App() {
       `Client Name: ${clientName.trim() || "-"}`,
       `Phone: ${phone.trim() || "-"}`,
       `Email: ${email.trim() || "-"}`,
-      `Passengers: ${passengerCount || "-"}`,
       "",
       "Arrival Details",
       `Arrival Date: ${arrivalDate ? formatDateWithDayDisplay(arrivalDate) : "-"}`,
@@ -334,7 +307,6 @@ export default function App() {
     clientName,
     email,
     flightNumber,
-    passengerCount,
     phone,
     resolvedArrivalDestination,
     selectedKnownEvents,
@@ -355,7 +327,6 @@ export default function App() {
     setClientName("");
     setPhone("");
     setEmail("");
-    setPassengerCount(String(BASE_PASSENGER_COUNT));
     setArrivalDate(DEFAULT_DATE);
     setArrivalTime("");
     setFlightNumber("");
@@ -364,7 +335,7 @@ export default function App() {
     setSelectedKnownEventIds([]);
     setHasReviewedSummary(false);
     setDepositAcknowledged(false);
-    clearSubmissionMessage();
+    setSubmissionState({ type: "idle", message: "" });
   }
 
   function validateBeforeSubmit() {
@@ -380,17 +351,15 @@ export default function App() {
       return { type: "error", message: "Enter a valid email address before sending the planning form." };
     }
 
-    const passengerNumber = Number(passengerCount || 0);
-    if (!passengerNumber || passengerNumber < 1) {
-      return { type: "error", message: "Passenger count is required before sending the planning form." };
-    }
-
-    if (passengerNumber > VEHICLE_CAPACITY) {
-      return { type: "error", message: `Passenger count cannot exceed ${VEHICLE_CAPACITY} total passengers.` };
-    }
-
     if (!arrivalDate) {
       return { type: "error", message: "Arrival date is required before sending the planning form." };
+    }
+
+    if (!isDateWithinServiceWindow(arrivalDate)) {
+      return {
+        type: "error",
+        message: `Arrival date must be between ${formatDateDisplay(SERVICE_START_DATE)} and ${formatDateDisplay(SERVICE_END_DATE)}.`,
+      };
     }
 
     if (!arrivalTime) {
@@ -413,10 +382,16 @@ export default function App() {
       return { type: "error", message: "Confirm the deposit terms before sending the planning form." };
     }
 
+    if (hasSuccessfulSubmission) {
+      return { type: "error", message: "This planning form has already been sent. Make a change or reset the form before sending again." };
+    }
+
     return null;
   }
 
-  async function handleSubmit() {
+  async function handleSubmit(event) {
+    event?.preventDefault();
+
     const validationError = validateBeforeSubmit();
     if (validationError) {
       setSubmissionState(validationError);
@@ -431,7 +406,6 @@ export default function App() {
       payload.append("clientName", clientName.trim());
       payload.append("phone", phone.trim());
       payload.append("email", email.trim());
-      payload.append("passengerCount", passengerCount);
       payload.append("arrivalDate", arrivalDate);
       payload.append("arrivalTime", arrivalTime);
       payload.append("flightNumber", flightNumber.trim());
@@ -473,13 +447,13 @@ export default function App() {
   return (
     <div className="min-h-screen bg-black px-4 py-8 text-white sm:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-6">
-        <div className="rounded-[32px] border border-zinc-800 bg-zinc-950/80 p-6 shadow-2xl shadow-black/40">
+        <form onSubmit={handleSubmit} className="rounded-[32px] border border-zinc-800 bg-zinc-950/80 p-6 shadow-2xl shadow-black/40">
           <div className="mb-6 flex items-start justify-between gap-4">
             <div>
               <div className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-300">Superb Executive Transportation</div>
               <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">Carnival Planning Form</h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
-                Complete this form to set the baseline arrival and Carnival event schedule for the proposed service dates.
+                Use this form to set the baseline arrival and Carnival schedule.
               </p>
             </div>
             <div className="hidden rounded-[24px] border border-amber-400 bg-amber-400/10 px-4 py-3 text-right text-sm text-amber-100 md:block">
@@ -493,32 +467,21 @@ export default function App() {
           <div className="mt-6 grid gap-6 xl:grid-cols-[1.65fr_0.95fr]">
             <div className="space-y-6">
               <div className="rounded-[28px] border border-zinc-800 bg-zinc-900/60 p-5">
-                <SectionHeader icon={User} title="Client and Arrival Details" subtitle="Start with the client, arrival, and contact information." />
+                <SectionHeader icon={User} title="Client & Arrival" subtitle="Enter the client, arrival, and contact details." />
 
                 <div className="grid gap-4 md:grid-cols-2">
                   <div>
                     <FieldLabel>Client Name</FieldLabel>
-                    <Input value={clientName} onChange={(e) => { setClientName(e.target.value); clearSubmissionMessage(); }} placeholder="Full name" />
-                  </div>
-
-                  <div>
-                    <FieldLabel>Passenger Count</FieldLabel>
                     <Input
-                      type="number"
-                      min="1"
-                      value={passengerCount}
+                      value={clientName}
                       onChange={(e) => {
-                        setPassengerCount(e.target.value);
+                        setClientName(e.target.value);
                         clearSubmissionMessage();
                       }}
-                      placeholder="Total passengers"
+                      placeholder="Full name"
                     />
-                    {passengerCapacityState ? (
-                      <div className={`mt-2 rounded-2xl border px-3 py-2 text-xs ${passengerCapacityState.className}`}>
-                        {passengerCapacityState.message}
-                      </div>
-                    ) : null}
                   </div>
+
 
                   <div>
                     <FieldLabel>Phone</FieldLabel>
@@ -531,7 +494,7 @@ export default function App() {
                         setPhone(formatPhoneNumber(e.target.value));
                         clearSubmissionMessage();
                       }}
-                      placeholder="340-000-0000"
+                      placeholder="000-000-0000"
                     />
                   </div>
 
@@ -552,12 +515,17 @@ export default function App() {
                     <FieldLabel>Arrival Date</FieldLabel>
                     <Input
                       type="date"
+                      min={SERVICE_START_DATE}
+                      max={SERVICE_END_DATE}
                       value={arrivalDate}
                       onChange={(e) => {
                         setArrivalDate(e.target.value);
                         clearSubmissionMessage();
                       }}
                     />
+                    <div className="mt-2 text-xs text-zinc-400">
+                      Service dates: {formatDateDisplay(SERVICE_START_DATE)} to {formatDateDisplay(SERVICE_END_DATE)}
+                    </div>
                   </div>
 
                   <div>
@@ -624,7 +592,7 @@ export default function App() {
               </div>
 
               <div className="rounded-[28px] border border-zinc-800 bg-zinc-900/60 p-5">
-                <SectionHeader icon={CalendarDays} title="Known Carnival Events" subtitle="Select any confirmed Carnival events that should be built into the baseline schedule." />
+                <SectionHeader icon={CalendarDays} title="Known Events" subtitle="Select any confirmed Carnival events for the baseline schedule." />
 
                 <div className="grid gap-3">
                   {KNOWN_EVENT_OPTIONS.map((option) => {
@@ -655,12 +623,9 @@ export default function App() {
 
             <div className="space-y-6">
               <div className="sticky top-6 rounded-[28px] border border-zinc-800 bg-zinc-900/60 p-5">
-                <SectionHeader icon={ClipboardCheck} title="Final Review" subtitle="Review the summary, confirm the deposit terms, then send the planning form." />
+                <SectionHeader icon={ClipboardCheck} title="Final Review" subtitle="Review, confirm the deposit terms, and send." />
 
                 <div className="space-y-4 text-sm">
-                  <div className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-xs leading-6 text-zinc-400">
-                    Review the summary below, confirm the details, acknowledge the deposit terms, then send the planning form. Known Carnival events are optional.
-                  </div>
 
                   <pre className="whitespace-pre-wrap rounded-[24px] border border-zinc-800 bg-black p-4 text-xs leading-6 text-zinc-300">
                     {summaryText}
@@ -696,19 +661,19 @@ export default function App() {
                   </label>
 
                   <button
-                    type="button"
-                    onClick={handleSubmit}
-                    disabled={isSubmitting || !hasReviewedSummary || !depositAcknowledged}
+                    type="submit"
+                    disabled={isSubmitting || !hasReviewedSummary || !depositAcknowledged || hasSuccessfulSubmission}
                     className="w-full rounded-2xl border border-amber-400 bg-amber-400 px-4 py-3 font-semibold text-black transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <span className="inline-flex items-center justify-center gap-2">
-                      <Send className="h-4 w-4" /> {isSubmitting ? "Sending..." : "Send Planning Form"}
+                      <Send className="h-4 w-4" />
+                      {isSubmitting ? "Sending..." : hasSuccessfulSubmission ? "Form Sent" : "Send Planning Form"}
                     </span>
                   </button>
 
                   {!hasReviewedSummary || !depositAcknowledged ? (
                     <div className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-xs text-zinc-400">
-                      Review the summary, then confirm the deposit terms to enable sending.
+                      Review the summary and confirm the deposit terms to enable sending.
                     </div>
                   ) : null}
 
@@ -732,7 +697,7 @@ export default function App() {
               </div>
             </div>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

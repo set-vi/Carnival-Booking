@@ -242,7 +242,7 @@ function OfferPanel() {
       <div className="mt-5 rounded-[24px] border border-amber-400 bg-black/30 p-4 text-sm leading-6 text-zinc-300">
         <div className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-300">Deposit Terms</div>
         <p className="mt-2">
-          Once this planning form is completed and sent, a <span className="font-semibold text-white">50% non-refundable deposit of ${DEPOSIT_AMOUNT}</span> is required to confirm and reserve the service dates. The remaining <span className="font-semibold text-white">${DEPOSIT_AMOUNT}</span> balance is due before service begins. Receipt of the deposit reserves the dates.
+          A <span className="font-semibold text-white">50% non-refundable deposit of ${DEPOSIT_AMOUNT}</span> is required upon submission to reserve the service dates. The remaining <span className="font-semibold text-white">${DEPOSIT_AMOUNT}</span> balance is due before service begins.
         </p>
       </div>
     </div>

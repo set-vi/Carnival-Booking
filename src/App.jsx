@@ -1,9 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
   CalendarDays,
-  Clock3,
-  Plus,
-  Trash2,
   CarFront,
   ChevronDown,
   Send,
@@ -76,15 +73,6 @@ function FieldLabel({ children }) {
 function Input({ className = "", ...props }) {
   return (
     <input
-      {...props}
-      className={`w-full rounded-2xl border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-amber-400 ${className}`}
-    />
-  );
-}
-
-function Textarea({ className = "", ...props }) {
-  return (
-    <textarea
       {...props}
       className={`w-full rounded-2xl border border-zinc-700 bg-zinc-950 px-3 py-2.5 text-sm text-white outline-none transition focus:border-amber-400 ${className}`}
     />
@@ -175,37 +163,6 @@ function formatTimeDisplay(value) {
   return `${displayHour}:${minutes} ${suffix}`;
 }
 
-function createEmptyAdditionalRequest(defaultDate = DEFAULT_DATE) {
-  return {
-    event: "",
-    date: defaultDate,
-    eventTime: "",
-    destination: "",
-    requestedWindow: "",
-    notes: "",
-  };
-}
-
-function hasAnyCustomRequestContent(request) {
-  return Boolean(
-    request.event.trim() ||
-      request.date ||
-      request.eventTime ||
-      request.destination.trim() ||
-      request.requestedWindow.trim() ||
-      request.notes.trim()
-  );
-}
-
-function isCompleteCustomRequest(request) {
-  return Boolean(
-    request.event.trim() &&
-      request.date &&
-      request.destination.trim() &&
-      (request.eventTime || request.requestedWindow.trim())
-  );
-}
-
 function getPassengerCapacityState(passengerCountValue) {
   const passengerCount = Number(passengerCountValue || 0);
 
@@ -228,23 +185,15 @@ function getPassengerCapacityState(passengerCountValue) {
 
 function runSelfChecks() {
   console.assert(formatPhoneNumber("3406428686") === "340-642-8686", "Phone formatting failed");
+  console.assert(formatPhoneNumber("3406428") === "340-642-8", "Partial phone formatting failed");
   console.assert(isValidPhoneNumber("340-642-8686") === true, "Phone validation failed");
   console.assert(isValidPhoneNumber("3406428686") === false, "Phone validation should fail without dashes");
   console.assert(isValidEmail("name@example.com") === true, "Email validation failed");
   console.assert(isValidEmail("name example.com") === false, "Invalid email should fail");
   console.assert(formatDateDisplay("2026-04-29") === "04/29/2026", "Date formatting failed");
+  console.assert(formatDateWithDayDisplay("2026-04-29").includes("04/29/2026"), "Date with day formatting failed");
   console.assert(formatTimeDisplay("19:30") === "7:30 PM", "Time formatting failed");
-  console.assert(
-    isCompleteCustomRequest({
-      event: "Dinner",
-      date: "2026-04-29",
-      eventTime: "19:00",
-      destination: "Charlotte Amalie",
-      requestedWindow: "",
-      notes: "",
-    }) === true,
-    "Complete custom request should pass"
-  );
+  console.assert(getPassengerCapacityState("2") === null, "Base passenger state should be null");
   console.assert(
     getPassengerCapacityState("5")?.message.includes("Additional passengers are allowed"),
     "Mid passenger state failed"
@@ -252,6 +201,10 @@ function runSelfChecks() {
   console.assert(
     getPassengerCapacityState("7")?.message.includes("up to 6 total passengers"),
     "Overflow passenger state failed"
+  );
+  console.assert(
+    DESTINATION_OPTIONS.includes("Yacht Haven Grande") && DESTINATION_OPTIONS.includes("Other"),
+    "Destination options are incomplete"
   );
 }
 
@@ -273,7 +226,7 @@ function OfferPanel() {
           Private driver service for <span className="font-semibold text-white">April 29, 2026 through May 4, 2026</span> is offered at a total package rate of <span className="font-semibold text-amber-300">${PACKAGE_TOTAL}</span> for the proposed service dates.
         </p>
         <p>
-          This package includes private transportation during the proposed service dates for Carnival-related activities, including daytime and evening events, local runs, dinner transportation, event drop-offs, pickups, and standby service based on the baseline schedule, requested time windows, and later client-confirmed adjustments during the service period.
+          This package includes private transportation during the proposed service dates for Carnival-related activities, including daytime and evening events, local runs, dinner transportation, event drop-offs, pickups, and standby service based on the baseline schedule and later client-confirmed adjustments during the service period.
         </p>
 
         <div className="rounded-[24px] border border-amber-400 bg-black/30 p-4 text-sm leading-6 text-zinc-300">
@@ -296,7 +249,7 @@ function OfferPanel() {
         </div>
 
         <p>
-          This planning form is intended to establish the baseline schedule for the proposed service dates. Final event timing, adjustments, and additional requests may change based on the client’s confirmed plans during the service period.
+          This planning form is intended to establish the baseline arrival and Carnival event schedule for the proposed service dates. Final timing and service adjustments can be worked out later based on the client’s confirmed plans during the service period.
         </p>
       </div>
 
@@ -317,73 +270,6 @@ function OfferPanel() {
   );
 }
 
-function AdditionalEventCard({ request, onChange, onRemove }) {
-  return (
-    <div className="rounded-[24px] border border-zinc-800 bg-zinc-950/80 p-4">
-      <div className="mb-4 flex items-start justify-between gap-3">
-        <div>
-          <div className="text-lg font-semibold tracking-tight text-white">{request.event || "Additional Event"}</div>
-          <div className="mt-1 flex flex-wrap gap-3 text-sm text-zinc-400">
-            <span className="inline-flex items-center gap-1.5">
-              <CalendarDays className="h-4 w-4" /> {request.date ? formatDateWithDayDisplay(request.date) : "No date"}
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <Clock3 className="h-4 w-4" /> {request.eventTime ? formatTimeDisplay(request.eventTime) : request.requestedWindow || "No time"}
-            </span>
-          </div>
-        </div>
-        <button
-          type="button"
-          onClick={onRemove}
-          className="rounded-2xl border border-red-500 bg-red-500/10 p-2 text-red-200 transition hover:bg-red-500/20"
-          aria-label="Remove additional event"
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2">
-        <div className="md:col-span-2">
-          <FieldLabel>Event or Request</FieldLabel>
-          <Input value={request.event} onChange={(e) => onChange("event", e.target.value)} placeholder="Dinner, pickup, drop-off, shopping, or other request" />
-        </div>
-
-        <div>
-          <FieldLabel>Date</FieldLabel>
-          <Input type="date" value={request.date} onChange={(e) => onChange("date", e.target.value)} />
-        </div>
-
-        <div>
-          <FieldLabel>Event Time</FieldLabel>
-          <Select value={request.eventTime} onChange={(e) => onChange("eventTime", e.target.value)}>
-            <option value="">Select a time</option>
-            {TIME_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </Select>
-        </div>
-
-        <div className="md:col-span-2">
-          <FieldLabel>Destination</FieldLabel>
-          <Input value={request.destination} onChange={(e) => onChange("destination", e.target.value)} placeholder="Where should service go for this request?" />
-        </div>
-
-        <div className="md:col-span-2">
-          <FieldLabel>Requested Time Window</FieldLabel>
-          <Input value={request.requestedWindow} onChange={(e) => onChange("requestedWindow", e.target.value)} placeholder="Use this if exact event time is not known yet" />
-        </div>
-
-        <div className="md:col-span-2">
-          <FieldLabel>Notes</FieldLabel>
-          <Textarea rows={3} value={request.notes} onChange={(e) => onChange("notes", e.target.value)} placeholder="Anything else the client wants noted for this request" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
 export default function App() {
   const [clientName, setClientName] = useState("");
   const [phone, setPhone] = useState("");
@@ -392,13 +278,9 @@ export default function App() {
   const [arrivalDate, setArrivalDate] = useState(DEFAULT_DATE);
   const [arrivalTime, setArrivalTime] = useState("");
   const [flightNumber, setFlightNumber] = useState("");
-  const [luggageDetails, setLuggageDetails] = useState("");
   const [arrivalDestination, setArrivalDestination] = useState("Red Hook Ferry Terminal");
   const [arrivalDestinationOther, setArrivalDestinationOther] = useState("");
   const [selectedKnownEventIds, setSelectedKnownEventIds] = useState([]);
-  const [additionalRequests, setAdditionalRequests] = useState([]);
-  const [generalNotes, setGeneralNotes] = useState("");
-  const [showSummary, setShowSummary] = useState(false);
   const [hasReviewedSummary, setHasReviewedSummary] = useState(false);
   const [depositAcknowledged, setDepositAcknowledged] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -429,7 +311,6 @@ export default function App() {
       `Arrival Date: ${arrivalDate ? formatDateWithDayDisplay(arrivalDate) : "-"}`,
       `Arrival Time: ${arrivalTime ? formatTimeDisplay(arrivalTime) : "-"}`,
       `Flight Number: ${flightNumber.trim() || "-"}`,
-      `Luggage Details: ${luggageDetails.trim() || "-"}`,
       `Arrival Destination: ${resolvedArrivalDestination || "-"}`,
       "",
       "Known Carnival Events",
@@ -443,37 +324,16 @@ export default function App() {
       });
     }
 
-    lines.push("", "Additional Requests");
-
-    const completeAdditionalRequests = additionalRequests.filter(isCompleteCustomRequest);
-    if (completeAdditionalRequests.length === 0) {
-      lines.push("- None added");
-    } else {
-      completeAdditionalRequests.forEach((request, index) => {
-        lines.push(`- ${index + 1}. ${request.event}`);
-        lines.push(`  Date: ${formatDateWithDayDisplay(request.date)}`);
-        lines.push(`  Time: ${request.eventTime ? formatTimeDisplay(request.eventTime) : request.requestedWindow}`);
-        lines.push(`  Destination: ${request.destination}`);
-        if (request.notes.trim()) {
-          lines.push(`  Notes: ${request.notes.trim()}`);
-        }
-      });
-    }
-
-    lines.push("", `General Notes: ${generalNotes.trim() || "-"}`);
     lines.push("", `Package Total: $${PACKAGE_TOTAL}`);
     lines.push(`Deposit Required to Reserve Dates: $${DEPOSIT_AMOUNT}`);
 
     return lines.join(NEWLINE);
   }, [
-    additionalRequests,
     arrivalDate,
     arrivalTime,
     clientName,
     email,
     flightNumber,
-    generalNotes,
-    luggageDetails,
     passengerCount,
     phone,
     resolvedArrivalDestination,
@@ -491,25 +351,6 @@ export default function App() {
     clearSubmissionMessage();
   }
 
-  function addAdditionalRequest() {
-    setAdditionalRequests((current) => [...current, createEmptyAdditionalRequest(arrivalDate || DEFAULT_DATE)]);
-    clearSubmissionMessage();
-  }
-
-  function updateAdditionalRequest(index, field, value) {
-    setAdditionalRequests((current) =>
-      current.map((request, requestIndex) =>
-        requestIndex === index ? { ...request, [field]: value } : request
-      )
-    );
-    clearSubmissionMessage();
-  }
-
-  function removeAdditionalRequest(index) {
-    setAdditionalRequests((current) => current.filter((_, requestIndex) => requestIndex !== index));
-    clearSubmissionMessage();
-  }
-
   function resetForm() {
     setClientName("");
     setPhone("");
@@ -518,13 +359,9 @@ export default function App() {
     setArrivalDate(DEFAULT_DATE);
     setArrivalTime("");
     setFlightNumber("");
-    setLuggageDetails("");
     setArrivalDestination("Red Hook Ferry Terminal");
     setArrivalDestinationOther("");
     setSelectedKnownEventIds([]);
-    setAdditionalRequests([]);
-    setGeneralNotes("");
-    setShowSummary(false);
     setHasReviewedSummary(false);
     setDepositAcknowledged(false);
     clearSubmissionMessage();
@@ -564,37 +401,12 @@ export default function App() {
       return { type: "error", message: "Flight number is required before sending the planning form." };
     }
 
-    if (!luggageDetails.trim()) {
-      return { type: "error", message: "Luggage details are required before sending the planning form." };
-    }
-
     if (!resolvedArrivalDestination) {
       return { type: "error", message: "Arrival destination is required before sending the planning form." };
     }
 
-    const hasKnownEvent = selectedKnownEvents.length > 0;
-    const hasCompleteAdditionalRequest = additionalRequests.some(isCompleteCustomRequest);
-
-    if (!hasKnownEvent && !hasCompleteAdditionalRequest) {
-      return {
-        type: "error",
-        message: "Add at least one known Carnival event or one complete additional request before sending the planning form.",
-      };
-    }
-
-    const hasIncompleteAdditionalRequest = additionalRequests.some(
-      (request) => hasAnyCustomRequestContent(request) && !isCompleteCustomRequest(request)
-    );
-
-    if (hasIncompleteAdditionalRequest) {
-      return {
-        type: "error",
-        message: "Complete or remove any unfinished additional request before sending the planning form.",
-      };
-    }
-
     if (!hasReviewedSummary) {
-      return { type: "error", message: "Open and review the summary before sending the planning form." };
+      return { type: "error", message: "Review the summary before sending the planning form." };
     }
 
     if (!depositAcknowledged) {
@@ -623,20 +435,11 @@ export default function App() {
       payload.append("arrivalDate", arrivalDate);
       payload.append("arrivalTime", arrivalTime);
       payload.append("flightNumber", flightNumber.trim());
-      payload.append("luggageDetails", luggageDetails.trim());
       payload.append("arrivalDestination", resolvedArrivalDestination);
       payload.append(
         "knownEvents",
         selectedKnownEvents.map((event) => `${event.event} | ${event.date} | ${event.eventTime}`).join(NEWLINE)
       );
-      payload.append(
-        "additionalRequests",
-        additionalRequests
-          .filter(isCompleteCustomRequest)
-          .map((request) => `${request.event} | ${request.date} | ${request.eventTime || request.requestedWindow} | ${request.destination}`)
-          .join(NEWLINE)
-      );
-      payload.append("generalNotes", generalNotes.trim());
       payload.append("summary", summaryText);
       payload.append("packageTotal", PACKAGE_TOTAL);
       payload.append("depositAmount", DEPOSIT_AMOUNT);
@@ -657,7 +460,7 @@ export default function App() {
         type: "success",
         message: "Your planning form has been sent successfully. We will review it and follow up directly.",
       });
-    } catch (error) {
+    } catch {
       setSubmissionState({
         type: "error",
         message: "Unable to send your planning form right now. Please try again or contact us directly.",
@@ -676,7 +479,7 @@ export default function App() {
               <div className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-300">Superb Executive Transportation</div>
               <h1 className="mt-2 text-3xl font-semibold tracking-tight text-white">Carnival Planning Form</h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400">
-                Complete this form to set the baseline arrival, event, and service schedule for the proposed Carnival service dates.
+                Complete this form to set the baseline arrival and Carnival event schedule for the proposed service dates.
               </p>
             </div>
             <div className="hidden rounded-[24px] border border-amber-400 bg-amber-400/10 px-4 py-3 text-right text-sm text-amber-100 md:block">
@@ -720,6 +523,9 @@ export default function App() {
                   <div>
                     <FieldLabel>Phone</FieldLabel>
                     <Input
+                      type="tel"
+                      inputMode="tel"
+                      autoComplete="off"
                       value={phone}
                       onChange={(e) => {
                         setPhone(formatPhoneNumber(e.target.value));
@@ -814,19 +620,6 @@ export default function App() {
                       />
                     </div>
                   ) : null}
-
-                  <div className="md:col-span-2">
-                    <FieldLabel>Luggage Details</FieldLabel>
-                    <Textarea
-                      rows={3}
-                      value={luggageDetails}
-                      onChange={(e) => {
-                        setLuggageDetails(e.target.value);
-                        clearSubmissionMessage();
-                      }}
-                      placeholder="Example: 2 checked bags, 2 carry-ons"
-                    />
-                  </div>
                 </div>
               </div>
 
@@ -858,48 +651,6 @@ export default function App() {
                   })}
                 </div>
               </div>
-
-              <div className="rounded-[28px] border border-zinc-800 bg-zinc-900/60 p-5">
-                <SectionHeader icon={Plus} title="Additional Requests" subtitle="Add dinner, private pickups, drop-offs, shopping, or other requests that are not already listed above." />
-
-                <div className="space-y-4">
-                  {additionalRequests.length === 0 ? (
-                    <div className="rounded-[24px] border border-dashed border-zinc-700 bg-zinc-950/70 px-4 py-6 text-sm text-zinc-400">
-                      No additional requests added yet.
-                    </div>
-                  ) : null}
-
-                  {additionalRequests.map((request, index) => (
-                    <AdditionalEventCard
-                      key={`${index}-${request.date}-${request.event}`}
-                      request={request}
-                      onChange={(field, value) => updateAdditionalRequest(index, field, value)}
-                      onRemove={() => removeAdditionalRequest(index)}
-                    />
-                  ))}
-
-                  <button
-                    type="button"
-                    onClick={addAdditionalRequest}
-                    className="inline-flex items-center gap-2 rounded-2xl border border-amber-400 bg-amber-400/10 px-4 py-3 text-sm font-medium text-amber-200 transition hover:bg-amber-400/20"
-                  >
-                    <Plus className="h-4 w-4" /> Add Additional Request
-                  </button>
-                </div>
-              </div>
-
-              <div className="rounded-[28px] border border-zinc-800 bg-zinc-900/60 p-5">
-                <SectionHeader icon={ClipboardCheck} title="General Notes" subtitle="Use this for anything else the client wants noted for the service period." />
-                <Textarea
-                  rows={4}
-                  value={generalNotes}
-                  onChange={(e) => {
-                    setGeneralNotes(e.target.value);
-                    clearSubmissionMessage();
-                  }}
-                  placeholder="Anything else the client wants included in the planning notes"
-                />
-              </div>
             </div>
 
             <div className="space-y-6">
@@ -908,25 +659,12 @@ export default function App() {
 
                 <div className="space-y-4 text-sm">
                   <div className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-xs leading-6 text-zinc-400">
-                    Open the review summary, confirm the details, acknowledge the deposit terms, then send the planning form.
+                    Review the summary below, confirm the details, acknowledge the deposit terms, then send the planning form. Known Carnival events are optional.
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowSummary((current) => !current);
-                      clearSubmissionMessage();
-                    }}
-                    className="w-full rounded-2xl border border-amber-400 bg-amber-400/10 px-4 py-3 font-medium text-amber-200 transition hover:bg-amber-400/20"
-                  >
-                    {showSummary ? "Hide Review Summary" : "Open Review Summary"}
-                  </button>
-
-                  {showSummary ? (
-                    <pre className="whitespace-pre-wrap rounded-[24px] border border-zinc-800 bg-black p-4 text-xs leading-6 text-zinc-300">
-                      {summaryText}
-                    </pre>
-                  ) : null}
+                  <pre className="whitespace-pre-wrap rounded-[24px] border border-zinc-800 bg-black p-4 text-xs leading-6 text-zinc-300">
+                    {summaryText}
+                  </pre>
 
                   <label className="flex items-start gap-3 rounded-[24px] border border-zinc-800 bg-zinc-950/80 p-4 text-sm text-zinc-300">
                     <input
@@ -941,7 +679,7 @@ export default function App() {
                       }}
                       className="mt-0.5 h-4 w-4 rounded border-zinc-600 bg-black text-amber-400 focus:ring-amber-400"
                     />
-                    <span>I reviewed the summary above and confirm the details are ready to send.</span>
+                    <span>I reviewed the summary above and confirm the details are correct and ready to send.</span>
                   </label>
 
                   <label className="flex items-start gap-3 rounded-[24px] border border-zinc-800 bg-zinc-950/80 p-4 text-sm text-zinc-300">
@@ -970,7 +708,7 @@ export default function App() {
 
                   {!hasReviewedSummary || !depositAcknowledged ? (
                     <div className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-xs text-zinc-400">
-                      Open and review the summary, then confirm the deposit terms to enable sending.
+                      Review the summary, then confirm the deposit terms to enable sending.
                     </div>
                   ) : null}
 

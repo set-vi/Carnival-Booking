@@ -31,15 +31,15 @@ const TIME_OPTIONS = Array.from({ length: 48 }, (_, index) => {
 });
 
 const KNOWN_EVENT_OPTIONS = [
-  { id: "food-fair-04292026", event: "Food Fair", date: "2026-04-29", eventTime: "10:00" },
-  { id: "village-night-04292026", event: "Village Night", date: "2026-04-29", eventTime: "19:00" },
-  { id: "jouvert-04302026", event: "J’ouvert", date: "2026-04-30", eventTime: "05:30" },
-  { id: "village-night-04302026", event: "Village Night", date: "2026-04-30", eventTime: "19:00" },
-  { id: "childrens-parade-05012026", event: "Children’s Parade", date: "2026-05-01", eventTime: "10:00" },
-  { id: "village-night-05012026", event: "Village Night", date: "2026-05-01", eventTime: "19:00" },
-  { id: "adults-parade-05022026", event: "Adult’s Parade", date: "2026-05-02", eventTime: "10:00" },
-  { id: "village-night-05022026", event: "Village Night", date: "2026-05-02", eventTime: "19:00" },
-  { id: "fireworks-05022026", event: "Fireworks", date: "2026-05-02", eventTime: "21:00" },
+  { id: "food-fair-04292026", event: "Food Fair — Crown Bay", date: "2026-04-29", eventTime: "10:00" },
+  { id: "village-night-04292026", event: "Carnival Village Night", date: "2026-04-29", eventTime: "19:00" },
+  { id: "jouvert-04302026", event: "J’ouvert — Waterfront", date: "2026-04-30", eventTime: "05:30" },
+  { id: "village-night-04302026", event: "Carnival Village Night", date: "2026-04-30", eventTime: "19:00" },
+  { id: "childrens-parade-05012026", event: "Children’s Parade — Main Street", date: "2026-05-01", eventTime: "10:00" },
+  { id: "village-night-05012026", event: "Carnival Village Night", date: "2026-05-01", eventTime: "19:00" },
+  { id: "adults-parade-05022026", event: "Adults’ Parade — Main Street", date: "2026-05-02", eventTime: "10:00" },
+  { id: "fireworks-05022026", event: "Fireworks — Waterfront", date: "2026-05-02", eventTime: "21:00" },
+  { id: "village-night-05022026", event: "Carnival Village Night", date: "2026-05-02", eventTime: "19:00" },
 ];
 
 function SectionHeader({ icon: Icon, title, subtitle }) {
@@ -251,8 +251,14 @@ function runSelfChecks() {
     "Incomplete custom request should fail"
   );
   console.assert(getPassengerCapacityState("2") === null, "Base passenger state failed");
-  console.assert(getPassengerCapacityState("5") === null, "Mid passenger state failed");
-  console.assert(getPassengerCapacityState("6") === null, "Full passenger state failed");
+  console.assert(
+    getPassengerCapacityState("5")?.message.includes("Additional passengers are allowed"),
+    "Mid passenger state failed"
+  );
+  console.assert(
+    getPassengerCapacityState("6")?.message.includes("Additional passengers are allowed"),
+    "Full passenger state failed"
+  );
   console.assert(
     getPassengerCapacityState("7")?.message.includes("up to 6 total passengers"),
     "Overflow passenger state failed"
@@ -307,14 +313,14 @@ function OfferPanel() {
       <div className="mt-5 rounded-[24px] border border-amber-400/30 bg-black/30 p-4 text-sm leading-6 text-zinc-300">
         <div className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-300">Passenger Capacity</div>
         <p className="mt-2">
-          This proposal is based on a starting count of <span className="font-semibold text-white">{BASE_PASSENGER_COUNT} passengers</span>. Additional passengers are allowed up to the vehicle’s <span className="font-semibold text-white">{VEHICLE_CAPACITY}-passenger seating capacity</span>.
+          This proposal includes a <span className="font-semibold text-white">six-passenger luxury van</span> for the proposed service dates, with seating for up to <span className="font-semibold text-white">six total passengers</span>.
         </p>
       </div>
 
       <div className="mt-5 rounded-[24px] border border-amber-400/30 bg-black/30 p-4 text-sm leading-6 text-zinc-300">
         <div className="text-xs font-semibold uppercase tracking-[0.24em] text-amber-300">Deposit Terms</div>
         <p className="mt-2">
-          Once this planning form is completed and returned, a <span className="font-semibold text-white">50% non-refundable deposit of ${DEPOSIT_AMOUNT}</span> is required to confirm and reserve the service dates. The remaining <span className="font-semibold text-white">${DEPOSIT_AMOUNT}</span> balance is due before service begins. Receipt of the deposit reserves the dates.
+          Once this planning form is completed and sent, a <span className="font-semibold text-white">50% non-refundable deposit of ${DEPOSIT_AMOUNT}</span> is required to confirm and reserve the service dates. The remaining <span className="font-semibold text-white">${DEPOSIT_AMOUNT}</span> balance is due before service begins. Receipt of the deposit reserves the dates.
         </p>
       </div>
     </div>
@@ -621,7 +627,7 @@ export default function App() {
     if (addedItemsCount === 0) {
       setSubmissionState({
         type: "error",
-        message: "Add at least one Carnival or complete additional event before returning the planning form.",
+        message: "Add at least one Carnival or complete additional event before sending the planning form.",
       });
       return false;
     }
@@ -633,15 +639,15 @@ export default function App() {
 
     if (!validateBeforeSubmit()) return;
     if (!hasReviewedSummary) {
-      setSubmissionState({ type: "error", message: "Review the summary and confirm it before returning the planning form." });
+      setSubmissionState({ type: "error", message: "Review the summary and confirm it before sending the planning form." });
       return;
     }
     if (!hasViewedProposal) {
-      setSubmissionState({ type: "error", message: "Open and review the service proposal before returning the planning form." });
+      setSubmissionState({ type: "error", message: "Open and review the service proposal before sending the planning form." });
       return;
     }
     if (!depositAcknowledged) {
-      setSubmissionState({ type: "error", message: "Acknowledge the deposit terms before returning the planning form." });
+      setSubmissionState({ type: "error", message: "Acknowledge the deposit terms before sending the planning form." });
       return;
     }
 
@@ -673,7 +679,7 @@ export default function App() {
       }
 
       resetForm();
-      setSubmissionState({ type: "success", message: "Your planning form has been sent. We will review it and follow up directly." });
+      setSubmissionState({ type: "success", message: "Your planning form has been sent successfully. We will review it and follow up directly." });
     } catch {
       setSubmissionState({ type: "error", message: "Unable to send your planning form right now. Please try again or contact us directly." });
     } finally {
@@ -690,7 +696,7 @@ export default function App() {
               <p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-300">Superb Executive Transportation</p>
               <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Carnival Service Planning Form</h1>
               <p className="mt-2 max-w-3xl text-sm leading-6 text-zinc-400 sm:text-base">
-                Use this form to establish the baseline schedule for the proposed service dates. Review it, acknowledge it, and return it once the core travel and event structure is in place.
+                Use this form to establish the baseline schedule for the proposed service dates. Review it, acknowledge it, and send it once the core travel and event structure is in place.
               </p>
               <div className="mt-4 flex flex-wrap gap-3">
                 <div className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-xs text-zinc-400">
@@ -718,8 +724,8 @@ export default function App() {
                 <div className="mt-1 text-sm font-medium">${PACKAGE_TOTAL}</div>
               </div>
               <div className="col-span-2 rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 sm:col-span-1">
-                <div className="text-xs uppercase tracking-wide text-zinc-500">Return Process</div>
-                <div className="mt-1 text-sm font-medium">Review → Acknowledge → Return</div>
+                <div className="text-xs uppercase tracking-wide text-zinc-500">Send Process</div>
+                <div className="mt-1 text-sm font-medium">Review → Acknowledge → Send</div>
               </div>
             </div>
           </div>
@@ -962,7 +968,7 @@ export default function App() {
 
           <div className="space-y-6">
             <div className="rounded-[28px] border border-zinc-800 bg-zinc-900/60 p-5 shadow-xl shadow-black/30 xl:sticky xl:top-6">
-              <SectionHeader icon={ClipboardCheck} title="Return Checklist" subtitle="Keep this panel in review mode until the planning details are correct." />
+              <SectionHeader icon={ClipboardCheck} title="Send Checklist" subtitle="Keep this panel in review mode until the planning details are correct." />
 
               <div className="space-y-3 text-sm">
                 <button
@@ -989,7 +995,7 @@ export default function App() {
 
                 {!showSummary && !hasReviewedSummary && (
                   <div className="rounded-2xl border border-zinc-800 bg-zinc-950 px-4 py-3 text-xs text-zinc-400">
-                    Open the summary first. Then review the proposal terms and acknowledgment before returning the planning form.
+                    Open the summary first. Then review the proposal terms and acknowledgment before sending the planning form.
                   </div>
                 )}
 
@@ -1003,7 +1009,7 @@ export default function App() {
                   <div className="space-y-3">
                     {!depositAcknowledged && (
                       <div className="rounded-2xl border border-emerald-500/20 bg-emerald-500/10 px-4 py-3 text-xs text-emerald-200">
-                        Summary reviewed. Proposal acknowledgment is still required before return.
+                        Summary reviewed. Proposal acknowledgment is still required before sending.
                       </div>
                     )}
 
@@ -1011,7 +1017,7 @@ export default function App() {
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <div className="text-xs font-semibold uppercase tracking-[0.24em] text-zinc-500">Proposal Acknowledgment</div>
-                          <p className="mt-2 text-zinc-400">Open the service proposal, review it, then acknowledge the deposit terms here before returning the planning form.</p>
+                          <p className="mt-2 text-zinc-400">Open the service proposal, review it, then acknowledge the deposit terms here before sending the planning form.</p>
                         </div>
                         {!showProposal && (
                           <button
@@ -1059,7 +1065,7 @@ export default function App() {
                     className="w-full rounded-2xl border border-amber-400/40 bg-amber-400 px-4 py-3 font-semibold text-black transition hover:bg-amber-300 disabled:cursor-not-allowed disabled:opacity-60"
                   >
                     <span className="inline-flex items-center justify-center gap-2">
-                      <Send className="h-4 w-4" /> {isSubmitting ? "Sending..." : "Return Planning Form"}
+                      <Send className="h-4 w-4" /> {isSubmitting ? "Sending..." : "Send Planning Form"}
                     </span>
                   </button>
                 )}
@@ -1107,7 +1113,7 @@ export default function App() {
                       }}
                       className="mt-0.5 h-4 w-4 rounded border-zinc-600 bg-black text-amber-400 focus:ring-amber-400"
                     />
-                    <span>I reviewed the summary above and I am ready to move to the return step.</span>
+                    <span>I reviewed the summary above and I am ready to move to the send step.</span>
                   </label>
                 </div>
               )}
